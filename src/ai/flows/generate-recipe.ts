@@ -20,6 +20,12 @@ const GenerateRecipeInputSchema = z.object({
     .string()
     .optional()
     .describe('Any dietary restrictions or preferences, e.g., vegetarian, gluten-free.'),
+  images: z
+    .array(z.string())
+    .optional()
+    .describe(
+      'An array of Base64 encoded image data URIs. The model will try to identify ingredients from these images.'
+    ),
 });
 export type GenerateRecipeInput = z.infer<typeof GenerateRecipeInputSchema>;
 
@@ -46,10 +52,18 @@ const generateRecipePrompt = ai.definePrompt({
   output: {schema: GenerateRecipeOutputSchema},
   prompt: `You are a world-class chef skilled at creating delicious and innovative recipes.
 
-  Based on the ingredients provided, create a unique and easy-to-follow recipe. Consider any dietary preferences provided.
+  You will be provided with a list of ingredients and/or images.
+  {{#if images}}
+  You have been provided with the following images. Identify the ingredients from these images first:
+  {{{images}}}
+  {{/if}}
 
-  Ingredients: {{{ingredients}}}
-  Dietary Preferences: {{{dietaryPreferences}}}
+  {{#if ingredients}}
+  Additionally, consider these ingredients: {{{ingredients}}}
+  {{/if}}
+
+  Based on all identified ingredients, create a unique and easy-to-follow recipe.
+  Consider any dietary preferences provided: {{{dietaryPreferences}}}
 
   Format the response as follows:
 
@@ -68,7 +82,22 @@ const generateRecipeFlow = ai.defineFlow(
     outputSchema: GenerateRecipeOutputSchema,
   },
   async input => {
-    const recipe = await generateRecipePrompt(input);
+    const promptParts: any[] = [];
+    if (input.images && input.images.length > 0) {
+      input.images.forEach(imageDataUri => {
+        const [header, data] = imageDataUri.split(',');
+        const mimeType = header.match(/:(.*?);/)?.[1];
+        if (mimeType && data) {
+          promptParts.push({inlineData: {data, mimeType}});
+        }
+      });
+    }
+
+    const recipe = await generateRecipePrompt({
+      ...input,
+      // @ts-ignore
+      images: promptParts.length > 0 ? promptParts : undefined, // Pass processed images
+    });
 
     // Generate image in parallel with text
     const {media} = await ai.generate({
