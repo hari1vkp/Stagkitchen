@@ -132,44 +132,43 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(currentOnSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="inputType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-lg">What are you providing?</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          className="flex flex-row gap-4 pt-2"
-                        >
-                          <FormItem className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <RadioGroupItem value="ingredients" />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              Ingredients
-                            </FormLabel>
-                          </FormItem>
-                          <FormItem className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <RadioGroupItem value="finishedDish" />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              Finished Dish
-                            </FormLabel>
-                          </FormItem>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <FormField
+              control={form.control}
+              name="inputType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-lg">What are you providing?</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-row gap-4 pt-2"
+                    >
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="ingredients" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          Ingredients
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="finishedDish" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          Finished Dish
+                        </FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <FormField
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <FormField
                   control={form.control}
                   name="ingredients"
                   render={({ field }) => (
@@ -197,9 +196,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <div className="space-y-6">
                 <FormField
                   control={form.control}
                   name="dietaryPreferences"
@@ -218,7 +215,6 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                     </FormItem>
                   )}
                 />
-              </div>
             </div>
             
             <FormItem>
