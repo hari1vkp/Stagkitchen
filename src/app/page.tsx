@@ -32,7 +32,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 md:space-y-12">
       <RecipeForm onSubmit={handleGenerateRecipe} isLoading={isLoading} />
 
       {isLoading && (

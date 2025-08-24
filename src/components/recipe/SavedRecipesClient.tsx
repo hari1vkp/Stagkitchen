@@ -58,7 +58,6 @@ export default function SavedRecipesClient() {
   };
 
   if (!isMounted) {
-    // Render nothing or a loading skeleton on the server/first client render
     return (
         <div className="text-center py-10">
           <p className="text-lg text-muted-foreground">Loading saved recipes...</p>
@@ -70,8 +69,8 @@ export default function SavedRecipesClient() {
     return (
       <div className="text-center py-10">
         <Soup size={64} className="mx-auto text-muted-foreground mb-4" />
-        <h2 className="text-2xl font-semibold mb-2">No Saved Recipes Yet</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-2xl font-semibold mb-2 text-primary">No Saved Recipes Yet</h2>
+        <p className="text-muted-foreground max-w-md mx-auto">
           Generate some recipes and save your favorites to see them here!
         </p>
       </div>
@@ -81,28 +80,27 @@ export default function SavedRecipesClient() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-primary">Your Saved Recipes</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {savedRecipes.map((recipe) => (
-          <Card key={recipe.id} className="flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <CardHeader>
+          <Card key={recipe.id} className="flex flex-col bg-card border-border/60 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardHeader className="p-0">
               {recipe.photoDataUri ? (
-                 <div className="relative w-full h-48 rounded-t-lg overflow-hidden">
-                    <Image src={recipe.photoDataUri} alt={recipe.recipeName || "Recipe image"} layout="fill" objectFit="cover" data-ai-hint="food photography"/>
+                 <div className="relative w-full h-48 overflow-hidden">
+                    <Image src={recipe.photoDataUri} alt={recipe.recipeName || "Recipe image"} layout="fill" objectFit="cover" data-ai-hint="food photography" className="rounded-t-lg"/>
                   </div>
               ) : (
-                <div className="relative w-full h-48 rounded-t-lg overflow-hidden bg-muted flex items-center justify-center">
-                   <Image src="https://placehold.co/300x200.png" alt="Placeholder image" width={150} height={100} className="opacity-50" data-ai-hint="food plate cooking"/>
+                <div className="relative w-full h-48 bg-muted flex items-center justify-center rounded-t-lg">
+                   <Image src="https://placehold.co/300x200.png" alt="Placeholder image" width={150} height={100} className="opacity-20" data-ai-hint="food plate cooking"/>
                 </div>
               )}
-              <CardTitle className="mt-4 text-xl truncate">{recipe.recipeName}</CardTitle>
-              <CardDescription className="text-sm text-muted-foreground h-10 overflow-hidden">
-                {recipe.ingredients?.substring(0, 50) || "No ingredients preview."}...
-              </CardDescription>
             </CardHeader>
-            <CardContent className="flex-grow">
-              {/* Maybe a short summary or key ingredients here */}
+            <CardContent className="flex-grow p-4">
+              <CardTitle className="text-xl truncate font-semibold">{recipe.recipeName}</CardTitle>
+              <CardDescription className="text-sm text-muted-foreground h-10 overflow-hidden mt-1">
+                {recipe.ingredients?.substring(0, 70) || "No ingredients preview."}...
+              </CardDescription>
             </CardContent>
-            <CardFooter className="flex justify-between items-center border-t pt-4">
+            <CardFooter className="flex justify-between items-center border-t pt-4 p-4">
               <Button variant="outline" size="sm" onClick={() => setSelectedRecipe(recipe)}>
                 <Eye className="mr-2 h-4 w-4" /> View
               </Button>
@@ -135,14 +133,14 @@ export default function SavedRecipesClient() {
 
       {selectedRecipe && (
         <Dialog open={!!selectedRecipe} onOpenChange={(open) => !open && setSelectedRecipe(null)}>
-          <DialogContent className="sm:max-w-[600px] max-h-[90vh]">
+          <DialogContent className="sm:max-w-2xl max-h-[90vh]">
             <DialogHeader>
-              <DialogTitle className="text-2xl text-primary">{selectedRecipe.recipeName}</DialogTitle>
+              <DialogTitle className="text-2xl text-accent">{selectedRecipe.recipeName}</DialogTitle>
               <DialogDescription>
                 View your saved recipe details below.
               </DialogDescription>
             </DialogHeader>
-            <ScrollArea className="max-h-[calc(80vh-100px)] pr-4">
+            <ScrollArea className="max-h-[calc(80vh - 120px)] pr-4">
             <div className="py-4 space-y-4">
               {selectedRecipe.photoDataUri ? (
                 <div className="relative w-full aspect-video rounded-md overflow-hidden">
@@ -150,18 +148,18 @@ export default function SavedRecipesClient() {
                 </div>
               ) : (
                  <div className="relative w-full aspect-video rounded-md overflow-hidden bg-muted flex items-center justify-center">
-                   <Image src="https://placehold.co/400x225.png" alt="Placeholder image" width={200} height={112} className="opacity-50" data-ai-hint="recipe placeholder"/>
+                   <Image src="https://placehold.co/400x225.png" alt="Placeholder image" width={200} height={112} className="opacity-20" data-ai-hint="recipe placeholder"/>
                 </div>
               )}
               <div>
-                <h3 className="font-semibold text-lg mb-1 text-accent">Ingredients:</h3>
-                <ul className="list-disc list-inside text-sm">
+                <h3 className="font-semibold text-lg mb-2 text-accent">Ingredients:</h3>
+                <ul className="list-disc list-inside text-foreground/90 space-y-1">
                   {formatList(selectedRecipe.ingredients).map((ing, i) => <li key={i}>{ing}</li>)}
                 </ul>
               </div>
               <div>
-                <h3 className="font-semibold text-lg mb-1 text-accent">Instructions:</h3>
-                <ol className="list-decimal list-inside text-sm space-y-1">
+                <h3 className="font-semibold text-lg mb-2 text-accent">Instructions:</h3>
+                <ol className="list-decimal list-inside text-foreground/90 space-y-2">
                   {formatList(selectedRecipe.instructions).map((step, i) => <li key={i}>{step}</li>)}
                 </ol>
               </div>

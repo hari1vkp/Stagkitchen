@@ -14,9 +14,8 @@ interface RecipeDisplayProps {
 
 const formatList = (text?: string): string[] => {
   if (!text) return [];
-  // Handles both comma-separated and newline-separated lists, and lists with hyphens/asterisks
   return text.split(/[\n,]/)
-    .map(item => item.replace(/^[\s*-]+/, '').trim()) // Remove leading hyphens/asterisks and trim
+    .map(item => item.replace(/^[\s*-]+/, '').trim())
     .filter(item => item.length > 0);
 };
 
@@ -50,19 +49,53 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
   const instructionsList = formatList(recipe.instructions);
 
   return (
-    <Card className="w-full shadow-xl overflow-hidden">
-      <CardHeader className="bg-primary/10 p-6">
-        <CardTitle className="text-3xl font-bold text-primary flex items-center gap-2">
-          <ChefHat size={32} /> {recipe.recipeName || "Your Delicious Recipe"}
+    <Card className="w-full shadow-2xl overflow-hidden bg-card border-border/60">
+      <CardHeader className="bg-secondary/30 p-4 md:p-6">
+        <CardTitle className="text-2xl md:text-3xl font-bold text-primary flex items-center gap-3">
+          <ChefHat size={32} className="text-accent" /> {recipe.recipeName || "Your Delicious Recipe"}
         </CardTitle>
         <CardDescription className="text-muted-foreground text-base pt-1">
           Enjoy this AI-generated culinary creation!
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="p-6 space-y-6">
+      <CardContent className="p-4 md:p-6 grid md:grid-cols-2 gap-6 lg:gap-8">
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-accent">
+              <ShoppingBasket size={24} /> Ingredients
+            </h3>
+            {ingredientsList.length > 0 ? (
+              <ul className="list-disc list-inside space-y-1.5 text-foreground/90 pl-2">
+                {ingredientsList.map((ingredient, index) => (
+                  <li key={index}>{ingredient}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted-foreground">No ingredients listed.</p>
+            )}
+          </div>
+
+          <Separator className="md:hidden" />
+
+          <div>
+            <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-accent">
+              <ListChecks size={24} /> Instructions
+            </h3>
+            {instructionsList.length > 0 ? (
+              <ol className="list-decimal list-inside space-y-2 text-foreground/90 pl-2">
+                {instructionsList.map((step, index) => (
+                  <li key={index}>{step}</li>
+                ))}
+              </ol>
+            ) : (
+              <p className="text-muted-foreground">No instructions provided.</p>
+            )}
+          </div>
+        </div>
+        
         {recipe.photoDataUri ? (
-          <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden shadow-md">
+          <div className="relative w-full aspect-square md:aspect-[4/3] rounded-lg overflow-hidden shadow-lg self-start">
             <Image
               src={recipe.photoDataUri}
               alt={recipe.recipeName || "Generated Recipe Image"}
@@ -72,55 +105,21 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
             />
           </div>
         ) : (
-          <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden shadow-md bg-muted flex items-center justify-center">
+          <div className="relative w-full aspect-square md:aspect-[4/3] rounded-lg overflow-hidden shadow-md bg-muted flex items-center justify-center">
             <Image
               src="https://placehold.co/400x300.png"
               alt="Placeholder image"
               width={400}
               height={300}
-              className="opacity-50"
+              className="opacity-20"
               data-ai-hint="food plate"
             />
           </div>
         )}
-
-        <Separator />
-
-        <div>
-          <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-accent">
-            <ShoppingBasket size={24} /> Ingredients
-          </h3>
-          {ingredientsList.length > 0 ? (
-            <ul className="list-disc list-inside space-y-1 text-foreground/90 pl-2">
-              {ingredientsList.map((ingredient, index) => (
-                <li key={index}>{ingredient}</li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-muted-foreground">No ingredients listed.</p>
-          )}
-        </div>
-
-        <Separator />
-
-        <div>
-          <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-accent">
-            <ListChecks size={24} /> Instructions
-          </h3>
-          {instructionsList.length > 0 ? (
-            <ol className="list-decimal list-inside space-y-2 text-foreground/90 pl-2">
-              {instructionsList.map((step, index) => (
-                <li key={index}>{step}</li>
-              ))}
-            </ol>
-          ) : (
-            <p className="text-muted-foreground">No instructions provided.</p>
-          )}
-        </div>
       </CardContent>
 
-      <CardFooter className="p-6 bg-primary/5 border-t">
-        <Button onClick={handleSaveRecipe} size="lg" className="w-full sm:w-auto">
+      <CardFooter className="p-4 md:p-6 bg-secondary/20 border-t">
+        <Button onClick={handleSaveRecipe} size="lg" className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90">
           <Save className="mr-2 h-5 w-5" />
           Save Recipe
         </Button>
