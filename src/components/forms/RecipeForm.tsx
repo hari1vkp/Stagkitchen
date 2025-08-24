@@ -24,11 +24,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import type { GenerateRecipeInput } from "@/ai/flows/generate-recipe";
 
 const formSchema = z.object({
-  ingredients: z.string().min(3, {
-    message: "Please list at least one ingredient.",
-  }),
+  ingredients: z.string().optional(),
   dietaryPreferences: z.string().optional(),
   imageType: z.enum(["ingredients", "finishedDish"]).default("ingredients"),
+  images: z.array(z.string()).optional(),
 });
 
 type RecipeFormValues = z.infer<typeof formSchema>;
@@ -39,39 +38,66 @@ interface RecipeFormProps {
 }
 
 export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  
   const form = useForm<RecipeFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema.refine(data => {
+        return !!data.ingredients || (!!data.images && data.images.length > 0);
+    }, {
+        message: "Please provide ingredients or at least one image.",
+        path: ["ingredients"],
+    })),
     defaultValues: {
       ingredients: "",
       dietaryPreferences: "",
       imageType: "ingredients",
+      images: [],
     },
   });
 
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  
+
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
       const currentFilesArray = Array.from(files);
       const newPreviews: string[] = [];
+      const newFormImages: string[] = [];
       event.target.value = "";
+
+      let filesToProcess = currentFilesArray.length;
 
       currentFilesArray.forEach(file => {
         if (!file.type.startsWith("image/")) {
           console.warn(`File ${file.name} is not an image and will be skipped.`);
+          filesToProcess--;
+          if(filesToProcess === 0) {
+             const allImages = [...imagePreviews, ...newPreviews];
+             setImagePreviews(allImages);
+             form.setValue("images", allImages, { shouldValidate: true });
+          }
           return;
         }
 
         const reader = new FileReader();
         reader.onloadend = () => {
-          newPreviews.push(reader.result as string);
-          if (newPreviews.length === currentFilesArray.filter(f => f.type.startsWith("image/")).length) {
-            setImagePreviews(prev => [...prev, ...newPreviews]);
+          const result = reader.result as string;
+          newPreviews.push(result);
+          newFormImages.push(result);
+          
+          if (newPreviews.length === filesToProcess) {
+             const allImages = [...imagePreviews, ...newPreviews];
+             setImagePreviews(allImages);
+             form.setValue("images", allImages, { shouldValidate: true });
           }
         };
         reader.onerror = () => {
           console.error("Error reading file:", file.name);
+           filesToProcess--;
+           if(filesToProcess === 0) {
+             const allImages = [...imagePreviews, ...newPreviews];
+             setImagePreviews(allImages);
+             form.setValue("images", allImages, { shouldValidate: true });
+          }
         };
         reader.readAsDataURL(file);
       });
@@ -79,7 +105,9 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
   };
 
   const handleRemoveImage = (index: number) => {
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    const newPreviews = imagePreviews.filter((_, i) => i !== index);
+    setImagePreviews(newPreviews);
+    form.setValue("images", newPreviews, { shouldValidate: true });
   };
 
   const currentOnSubmit = (values: RecipeFormValues) => {

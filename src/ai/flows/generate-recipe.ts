@@ -1,4 +1,5 @@
 
+
 //Recipe Snap
 
 'use server';
@@ -16,6 +17,7 @@ import {z} from 'genkit';
 const GenerateRecipeInputSchema = z.object({
   ingredients: z
     .string()
+    .optional()
     .describe('A comma-separated list of ingredients available for use in the recipe.'),
   dietaryPreferences: z
     .string()
@@ -42,7 +44,7 @@ const GenerateRecipeOutputSchema = z.object({
     .string()
     .optional()
     .describe(
-      "A photo of the finished dish, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'." // keep the backslashes here, they're needed to escape the single quote in the string
+      "A photo of the finished dish, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'" // keep the backslashes here, they're needed to escape the single quote in the string
     ),
 });
 export type GenerateRecipeOutput = z.infer<typeof GenerateRecipeOutputSchema>;
@@ -57,20 +59,20 @@ const generateRecipePrompt = ai.definePrompt({
   output: {schema: GenerateRecipeOutputSchema},
   prompt: `You are a world-class chef skilled at creating delicious and innovative recipes.
 
-  You will be provided with a list of ingredients and/or images.
+  You will be provided with a list of ingredients and/or images. Your task is to generate a recipe.
 
   {{#if images}}
     {{#if (eq imageType "finishedDish")}}
-      You have been provided with an image of a finished dish. Analyze the image and generate a recipe to make it. Also consider the additional ingredients listed.
+      You have been provided with an image of a finished dish. Analyze the image and generate a recipe to make it.
+      {{#if ingredients}}Also consider the additional ingredients listed: {{{ingredients}}}{{/if}}
       {{{images}}}
     {{else}}
-      You have been provided with the following images. Identify the ingredients from these images first:
+      You have been provided with the following images of ingredients. Identify the ingredients from these images.
+      {{#if ingredients}}Also consider the additional ingredients listed: {{{ingredients}}}{{/if}}
       {{{images}}}
     {{/if}}
-  {{/if}}
-
-  {{#if ingredients}}
-  Consider these ingredients: {{{ingredients}}}
+  {{else}}
+    You have been provided with the following ingredients: {{{ingredients}}}
   {{/if}}
 
   Based on all identified ingredients, create a unique and easy-to-follow recipe.
