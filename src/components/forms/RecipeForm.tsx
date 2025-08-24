@@ -133,18 +133,18 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(currentOnSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
+              <div className="space-y-6">
                 <FormField
                   control={form.control}
                   name="inputType"
                   render={({ field }) => (
-                    <FormItem className="space-y-3">
+                    <FormItem>
                       <FormLabel className="text-lg">What are you providing?</FormLabel>
                       <FormControl>
                         <RadioGroup
                           onValueChange={field.onChange}
                           defaultValue={field.value}
-                          className="flex flex-row gap-4"
+                          className="flex flex-row gap-4 pt-2"
                         >
                           <FormItem className="flex items-center space-x-3 space-y-0">
                             <FormControl>
@@ -159,7 +159,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                               <RadioGroupItem value="finishedDish" />
                             </FormControl>
                             <FormLabel className="font-normal">
-                              Finished Dish Name
+                              Finished Dish
                             </FormLabel>
                           </FormItem>
                         </RadioGroup>
@@ -174,6 +174,9 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                   name="ingredients"
                   render={({ field }) => (
                     <FormItem>
+                      <FormLabel className="text-lg">
+                        {inputType === 'ingredients' ? 'Ingredients' : 'Finished Dish Name'}
+                      </FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder={
@@ -196,24 +199,26 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="dietaryPreferences"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-lg">Dietary Preferences (Optional)</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="e.g., vegetarian, gluten-free, low-carb"
-                        className="min-h-[120px] resize-y bg-input/80"
-                        {...field}
-                        aria-label="Dietary Preferences"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="dietaryPreferences"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg">Dietary Preferences (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="e.g., vegetarian, gluten-free, low-carb"
+                          className="min-h-[120px] resize-y bg-input/80"
+                          {...field}
+                          aria-label="Dietary Preferences"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
             
             <FormItem>
