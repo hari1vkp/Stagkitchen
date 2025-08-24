@@ -83,7 +83,7 @@ const generateRecipePrompt = ai.definePrompt({
   Consider any dietary preferences provided: {{{dietaryPreferences}}}
 
   Also, provide estimated nutritional information for the generated recipe.
-  Finally, find and provide a relevant YouTube link that shows how to cook a similar dish.
+  Finally, search for and provide a relevant YouTube link that shows how to cook a similar dish.
 
   Format the response as follows:
 
@@ -115,19 +115,23 @@ const generateRecipeFlow = ai.defineFlow(
       });
     }
 
-    const recipe = await generateRecipePrompt({
+    const {output: recipe} = await generateRecipePrompt({
       ...input,
       isFinishedDish: input.imageType === 'finishedDish',
       // @ts-ignore
       images: promptParts.length > 0 ? promptParts : undefined, // Pass processed images
     });
 
+    if (!recipe) {
+      throw new Error('Failed to generate recipe');
+    }
+
     // Generate image in parallel with text
     const {media} = await ai.generate({
       model: 'googleai/gemini-2.0-flash-preview-image-generation',
       prompt: [
         {
-          text: `Generate a photo of the finished ${recipe.output?.recipeName} dish.`,
+          text: `Generate a photo of the finished ${recipe.recipeName} dish.`,
         },
       ],
       config: {
@@ -137,11 +141,11 @@ const generateRecipeFlow = ai.defineFlow(
 
 
     return {
-      recipeName: recipe.output!.recipeName,
-      ingredients: recipe.output!.ingredients,
-      instructions: recipe.output!.instructions,
-      nutritionalInfo: recipe.output!.nutritionalInfo,
-      youtubeLink: recipe.output!.youtubeLink,
+      recipeName: recipe.recipeName,
+      ingredients: recipe.ingredients,
+      instructions: recipe.instructions,
+      nutritionalInfo: recipe.nutritionalInfo,
+      youtubeLink: recipe.youtubeLink,
       photoDataUri: media.url,
     };
   }
