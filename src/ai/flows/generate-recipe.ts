@@ -53,16 +53,20 @@ export async function generateRecipe(input: GenerateRecipeInput): Promise<Genera
   return generateRecipeFlow(input);
 }
 
+const PromptInputSchema = GenerateRecipeInputSchema.extend({
+  isFinishedDish: z.boolean().optional(),
+});
+
 const generateRecipePrompt = ai.definePrompt({
   name: 'generateRecipePrompt',
-  input: {schema: GenerateRecipeInputSchema},
+  input: {schema: PromptInputSchema},
   output: {schema: GenerateRecipeOutputSchema},
   prompt: `You are a world-class chef skilled at creating delicious and innovative recipes.
 
   You will be provided with a list of ingredients and/or images. Your task is to generate a recipe.
 
   {{#if images}}
-    {{#if (eq imageType "finishedDish")}}
+    {{#if isFinishedDish}}
       You have been provided with an image of a finished dish. Analyze the image and generate a recipe to make it.
       {{#if ingredients}}Also consider the additional ingredients listed: {{{ingredients}}}{{/if}}
       {{{images}}}
@@ -108,6 +112,7 @@ const generateRecipeFlow = ai.defineFlow(
 
     const recipe = await generateRecipePrompt({
       ...input,
+      isFinishedDish: input.imageType === 'finishedDish',
       // @ts-ignore
       images: promptParts.length > 0 ? promptParts : undefined, // Pass processed images
     });
