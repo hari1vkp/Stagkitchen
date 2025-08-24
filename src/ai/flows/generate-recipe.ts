@@ -1,3 +1,4 @@
+
 //Recipe Snap
 
 'use server';
@@ -26,6 +27,10 @@ const GenerateRecipeInputSchema = z.object({
     .describe(
       'An array of Base64 encoded image data URIs. The model will try to identify ingredients from these images.'
     ),
+  imageType: z
+    .enum(['ingredients', 'finishedDish'])
+    .optional()
+    .describe('Specifies if the images are of "ingredients" or a "finishedDish".'),
 });
 export type GenerateRecipeInput = z.infer<typeof GenerateRecipeInputSchema>;
 
@@ -37,7 +42,7 @@ const GenerateRecipeOutputSchema = z.object({
     .string()
     .optional()
     .describe(
-      'A photo of the finished dish, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.' // keep the backslashes here, they're needed to escape the single quote in the string
+      "A photo of the finished dish, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'." // keep the backslashes here, they're needed to escape the single quote in the string
     ),
 });
 export type GenerateRecipeOutput = z.infer<typeof GenerateRecipeOutputSchema>;
@@ -53,13 +58,19 @@ const generateRecipePrompt = ai.definePrompt({
   prompt: `You are a world-class chef skilled at creating delicious and innovative recipes.
 
   You will be provided with a list of ingredients and/or images.
+
   {{#if images}}
-  You have been provided with the following images. Identify the ingredients from these images first:
-  {{{images}}}
+    {{#if (eq imageType "finishedDish")}}
+      You have been provided with an image of a finished dish. Analyze the image and generate a recipe to make it. Also consider the additional ingredients listed.
+      {{{images}}}
+    {{else}}
+      You have been provided with the following images. Identify the ingredients from these images first:
+      {{{images}}}
+    {{/if}}
   {{/if}}
 
   {{#if ingredients}}
-  Additionally, consider these ingredients: {{{ingredients}}}
+  Consider these ingredients: {{{ingredients}}}
   {{/if}}
 
   Based on all identified ingredients, create a unique and easy-to-follow recipe.
@@ -101,7 +112,7 @@ const generateRecipeFlow = ai.defineFlow(
 
     // Generate image in parallel with text
     const {media} = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-exp',
+      model: 'googleai/gemini-2.0-flash-preview-image-generation',
       prompt: [
         {
           text: `Generate a photo of the finished ${recipe.output?.recipeName} dish.`,

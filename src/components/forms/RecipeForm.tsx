@@ -12,11 +12,13 @@ import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import type { GenerateRecipeInput } from "@/ai/flows/generate-recipe";
@@ -26,6 +28,7 @@ const formSchema = z.object({
     message: "Please list at least one ingredient.",
   }),
   dietaryPreferences: z.string().optional(),
+  imageType: z.enum(["ingredients", "finishedDish"]).default("ingredients"),
 });
 
 type RecipeFormValues = z.infer<typeof formSchema>;
@@ -41,6 +44,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
     defaultValues: {
       ingredients: "",
       dietaryPreferences: "",
+      imageType: "ingredients",
     },
   });
 
@@ -90,7 +94,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
           Create Your Recipe
         </CardTitle>
         <CardDescription className="text-muted-foreground">
-          Tell us what ingredients you have, any dietary preferences, and optionally upload images of your ingredients.
+          Tell us what ingredients you have, any dietary preferences, and optionally upload images.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -149,6 +153,43 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
               </FormControl>
               <FormMessage />
             </FormItem>
+
+            {imagePreviews.length > 0 && (
+              <FormField
+                control={form.control}
+                name="imageType"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel className="text-lg">What's in the photos?</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-col md:flex-row gap-4"
+                      >
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="ingredients" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Individual Ingredients
+                          </FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="finishedDish" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            A Finished Dish
+                          </FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             {imagePreviews.length > 0 && (
               <div>
