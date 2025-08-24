@@ -1,5 +1,3 @@
-
-
 //Recipe Snap
 
 'use server';
@@ -40,6 +38,8 @@ const GenerateRecipeOutputSchema = z.object({
   recipeName: z.string().describe('The name of the generated recipe.'),
   ingredients: z.string().describe('A list of ingredients required for the recipe.'),
   instructions: z.string().describe('Step-by-step cooking instructions for the recipe.'),
+  nutritionalInfo: z.string().optional().describe('Estimated nutritional information for the recipe (e.g., calories, protein, carbs, fat).'),
+  youtubeLink: z.string().optional().describe('A URL to a YouTube video showing how to make a similar recipe.'),
   photoDataUri: z
     .string()
     .optional()
@@ -82,11 +82,16 @@ const generateRecipePrompt = ai.definePrompt({
   Based on all identified ingredients, create a unique and easy-to-follow recipe.
   Consider any dietary preferences provided: {{{dietaryPreferences}}}
 
+  Also, provide estimated nutritional information for the generated recipe.
+  Finally, find and provide a relevant YouTube link that shows how to cook a similar dish.
+
   Format the response as follows:
 
   Recipe Name: [Recipe Name]
   Ingredients: [List of ingredients with quantities]
   Instructions: [Step-by-step cooking instructions]
+  Nutritional Info: [e.g., Calories: 350, Protein: 20g, Carbs: 30g, Fat: 15g]
+  YouTube Link: [URL]
 
   After generating the recipe, create a visually appealing image of the finished dish.
   Please respond with the recipe details and image data URI.`,
@@ -130,12 +135,13 @@ const generateRecipeFlow = ai.defineFlow(
       },
     });
 
-    // console.log(media.url);
 
     return {
       recipeName: recipe.output!.recipeName,
       ingredients: recipe.output!.ingredients,
       instructions: recipe.output!.instructions,
+      nutritionalInfo: recipe.output!.nutritionalInfo,
+      youtubeLink: recipe.output!.youtubeLink,
       photoDataUri: media.url,
     };
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from 'next/image';
-import { Save, ShoppingBasket, ListChecks, ChefHat } from 'lucide-react';
+import { Save, ShoppingBasket, ListChecks, ChefHat, Info, Youtube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -18,7 +18,6 @@ const formatList = (text?: string): string[] => {
     .map(item => item.replace(/^[\s*-]+/, '').trim())
     .filter(item => item.length > 0);
 };
-
 
 export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
   const { toast } = useToast();
@@ -76,7 +75,7 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
             )}
           </div>
 
-          <Separator className="md:hidden" />
+          <Separator />
 
           <div>
             <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-accent">
@@ -94,28 +93,50 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
           </div>
         </div>
         
-        {recipe.photoDataUri ? (
-          <div className="relative w-full aspect-square md:aspect-[4/3] rounded-lg overflow-hidden shadow-lg self-start">
-            <Image
-              src={recipe.photoDataUri}
-              alt={recipe.recipeName || "Generated Recipe Image"}
-              layout="fill"
-              objectFit="cover"
-              data-ai-hint="dish food"
-            />
-          </div>
-        ) : (
-          <div className="relative w-full aspect-square md:aspect-[4/3] rounded-lg overflow-hidden shadow-md bg-muted flex items-center justify-center">
-            <Image
-              src="https://placehold.co/400x300.png"
-              alt="Placeholder image"
-              width={400}
-              height={300}
-              className="opacity-20"
-              data-ai-hint="food plate"
-            />
-          </div>
-        )}
+        <div className="space-y-6">
+          {recipe.photoDataUri ? (
+            <div className="relative w-full aspect-square md:aspect-[4/3] rounded-lg overflow-hidden shadow-lg self-start">
+              <Image
+                src={recipe.photoDataUri}
+                alt={recipe.recipeName || "Generated Recipe Image"}
+                layout="fill"
+                objectFit="cover"
+                data-ai-hint="dish food"
+              />
+            </div>
+          ) : (
+            <div className="relative w-full aspect-square md:aspect-[4/3] rounded-lg overflow-hidden shadow-md bg-muted flex items-center justify-center">
+              <Image
+                src="https://placehold.co/400x300.png"
+                alt="Placeholder image"
+                width={400}
+                height={300}
+                className="opacity-20"
+                data-ai-hint="food plate"
+              />
+            </div>
+          )}
+
+          {recipe.nutritionalInfo && (
+            <div>
+              <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-accent">
+                <Info size={24} /> Nutritional Info
+              </h3>
+              <p className="text-foreground/90">{recipe.nutritionalInfo}</p>
+            </div>
+          )}
+
+          {recipe.youtubeLink && (
+            <div>
+              <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-accent">
+                <Youtube size={24} /> Watch a Video
+              </h3>
+              <a href={recipe.youtubeLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">
+                {recipe.youtubeLink}
+              </a>
+            </div>
+          )}
+        </div>
       </CardContent>
 
       <CardFooter className="p-4 md:p-6 bg-secondary/20 border-t">

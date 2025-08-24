@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Trash2, Eye, Soup } from 'lucide-react';
+import { Trash2, Eye, Soup, Info, Youtube, ShoppingBasket, ListChecks } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -152,17 +152,31 @@ export default function SavedRecipesClient() {
                 </div>
               )}
               <div>
-                <h3 className="font-semibold text-lg mb-2 text-accent">Ingredients:</h3>
+                <h3 className="font-semibold text-lg mb-2 text-accent flex items-center gap-2"><ShoppingBasket size={20} /> Ingredients:</h3>
                 <ul className="list-disc list-inside text-foreground/90 space-y-1">
                   {formatList(selectedRecipe.ingredients).map((ing, i) => <li key={i}>{ing}</li>)}
                 </ul>
               </div>
               <div>
-                <h3 className="font-semibold text-lg mb-2 text-accent">Instructions:</h3>
+                <h3 className="font-semibold text-lg mb-2 text-accent flex items-center gap-2"><ListChecks size={20} /> Instructions:</h3>
                 <ol className="list-decimal list-inside text-foreground/90 space-y-2">
                   {formatList(selectedRecipe.instructions).map((step, i) => <li key={i}>{step}</li>)}
                 </ol>
               </div>
+               {selectedRecipe.nutritionalInfo && (
+                <div>
+                  <h3 className="font-semibold text-lg mb-2 text-accent flex items-center gap-2"><Info size={20} /> Nutritional Info:</h3>
+                  <p className="text-foreground/90">{selectedRecipe.nutritionalInfo}</p>
+                </div>
+              )}
+              {selectedRecipe.youtubeLink && (
+                <div>
+                  <h3 className="font-semibold text-lg mb-2 text-accent flex items-center gap-2"><Youtube size={20} /> Watch a Video:</h3>
+                  <a href={selectedRecipe.youtubeLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">
+                    {selectedRecipe.youtubeLink}
+                  </a>
+                </div>
+              )}
             </div>
             </ScrollArea>
              <DialogClose asChild>
