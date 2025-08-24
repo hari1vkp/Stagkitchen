@@ -26,8 +26,14 @@ import type { GenerateRecipeInput } from "@/ai/flows/generate-recipe";
 const formSchema = z.object({
   ingredients: z.string().optional(),
   dietaryPreferences: z.string().optional(),
-  imageType: z.enum(["ingredients", "finishedDish"]).default("ingredients"),
+  imageType: z.enum(["ingredients", "finishedDish"]).optional(),
   images: z.array(z.string()).optional(),
+  inputType: z.enum(["ingredients", "finishedDish"]).default("ingredients"),
+}).refine(data => {
+    return !!data.ingredients || (!!data.images && data.images.length > 0);
+}, {
+    message: "Please provide ingredients, a dish name, or at least one image.",
+    path: ["ingredients"],
 });
 
 type RecipeFormValues = z.infer<typeof formSchema>;
@@ -41,17 +47,13 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   
   const form = useForm<RecipeFormValues>({
-    resolver: zodResolver(formSchema.refine(data => {
-        return !!data.ingredients || (!!data.images && data.images.length > 0);
-    }, {
-        message: "Please provide ingredients or at least one image.",
-        path: ["ingredients"],
-    })),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       ingredients: "",
       dietaryPreferences: "",
       imageType: "ingredients",
       images: [],
+      inputType: "ingredients",
     },
   });
 
@@ -114,6 +116,8 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
     onSubmit({ ...values, images: imagePreviews });
   };
 
+  const inputType = form.watch("inputType");
+
   return (
     <Card className="w-full shadow-2xl bg-card border-border/60">
       <CardHeader>
@@ -122,31 +126,76 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
           Create Your Recipe
         </CardTitle>
         <CardDescription className="text-muted-foreground">
-          Tell us what ingredients you have, any dietary preferences, and optionally upload images.
+          Tell us what you have, and we'll whip up a recipe for you.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(currentOnSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="ingredients"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-lg">Ingredients</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="e.g., chicken breast, broccoli, soy sauce, garlic"
-                        className="min-h-[120px] resize-y bg-input/80"
-                        {...field}
-                        aria-label="Ingredients"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-2">
+                <FormField
+                  control={form.control}
+                  name="inputType"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel className="text-lg">What are you providing?</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="flex flex-row gap-4"
+                        >
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="ingredients" />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              Ingredients
+                            </FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="finishedDish" />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              Finished Dish Name
+                            </FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="ingredients"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          placeholder={
+                            inputType === "ingredients"
+                              ? "e.g., chicken breast, broccoli, soy sauce"
+                              : "e.g., Spaghetti Carbonara"
+                          }
+                          className="min-h-[120px] resize-y bg-input/80"
+                          {...field}
+                          aria-label={
+                            inputType === "ingredients"
+                              ? "Ingredients"
+                              : "Finished Dish Name"
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <FormField
                 control={form.control}
                 name="dietaryPreferences"
@@ -168,7 +217,10 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
             </div>
             
             <FormItem>
-              <FormLabel className="text-lg">Ingredient Images (Optional)</FormLabel>
+              <FormLabel className="text-lg">Upload Photos (Optional)</FormLabel>
+               <FormDescription>
+                You can upload photos of ingredients or a finished dish.
+              </FormDescription>
               <FormControl>
                 <Input
                   type="file"

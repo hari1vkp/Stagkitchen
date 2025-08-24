@@ -1,3 +1,4 @@
+
 //Recipe Snap
 
 'use server';
@@ -16,7 +17,7 @@ const GenerateRecipeInputSchema = z.object({
   ingredients: z
     .string()
     .optional()
-    .describe('A comma-separated list of ingredients available for use in the recipe.'),
+    .describe('A comma-separated list of ingredients available for use in the recipe, or the name of a finished dish.'),
   dietaryPreferences: z
     .string()
     .optional()
@@ -31,6 +32,10 @@ const GenerateRecipeInputSchema = z.object({
     .enum(['ingredients', 'finishedDish'])
     .optional()
     .describe('Specifies if the images are of "ingredients" or a "finishedDish".'),
+  inputType: z
+    .enum(['ingredients', 'finishedDish'])
+    .optional()
+    .describe('Specifies if the text input is a list of "ingredients" or a "finishedDish" name.'),
 });
 export type GenerateRecipeInput = z.infer<typeof GenerateRecipeInputSchema>;
 
@@ -54,7 +59,8 @@ export async function generateRecipe(input: GenerateRecipeInput): Promise<Genera
 }
 
 const PromptInputSchema = GenerateRecipeInputSchema.extend({
-  isFinishedDish: z.boolean().optional(),
+  isImageFinishedDish: z.boolean().optional(),
+  isTextInputFinishedDish: z.boolean().optional(),
 });
 
 const generateRecipePrompt = ai.definePrompt({
@@ -63,23 +69,32 @@ const generateRecipePrompt = ai.definePrompt({
   output: {schema: GenerateRecipeOutputSchema},
   prompt: `You are a world-class chef skilled at creating delicious and innovative recipes.
 
-  You will be provided with a list of ingredients and/or images. Your task is to generate a recipe.
+  Your task is to generate a recipe based on the provided information.
 
   {{#if images}}
-    {{#if isFinishedDish}}
-      You have been provided with an image of a finished dish. Analyze the image and generate a recipe to make it.
-      {{#if ingredients}}Also consider the additional ingredients listed: {{{ingredients}}}{{/if}}
+    {{#if isImageFinishedDish}}
+      You have been provided with an image of a finished dish. Analyze the image to generate a recipe.
+      {{#if ingredients}}
+        The user has also provided the following, which may be a dish name or extra ingredients: {{{ingredients}}}
+      {{/if}}
       {{{images}}}
     {{else}}
-      You have been provided with the following images of ingredients. Identify the ingredients from these images.
-      {{#if ingredients}}Also consider the additional ingredients listed: {{{ingredients}}}{{/if}}
+      You have been provided with images of ingredients. Identify the ingredients from these images.
+      {{#if ingredients}}
+        Also consider the additional ingredients or dish name listed: {{{ingredients}}}
+      {{/if}}
       {{{images}}}
     {{/if}}
   {{else}}
-    You have been provided with the following ingredients: {{{ingredients}}}
+    {{#if isTextInputFinishedDish}}
+        You have been provided with the name of a finished dish: {{{ingredients}}}. Generate a recipe for it.
+    {{else}}
+        You have been provided with the following ingredients: {{{ingredients}}}. Create a recipe using them.
+    {{/if}}
   {{/if}}
 
-  Based on all identified ingredients, create a unique and easy-to-follow recipe.
+
+  Based on all identified ingredients or the dish name, create a unique and easy-to-follow recipe.
   Consider any dietary preferences provided: {{{dietaryPreferences}}}
 
   Also, provide estimated nutritional information for the generated recipe.
@@ -117,7 +132,8 @@ const generateRecipeFlow = ai.defineFlow(
 
     const {output: recipe} = await generateRecipePrompt({
       ...input,
-      isFinishedDish: input.imageType === 'finishedDish',
+      isImageFinishedDish: input.imageType === 'finishedDish',
+      isTextInputFinishedDish: input.inputType === 'finishedDish',
       // @ts-ignore
       images: promptParts.length > 0 ? promptParts : undefined, // Pass processed images
     });
