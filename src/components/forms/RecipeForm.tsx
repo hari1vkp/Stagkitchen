@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -73,7 +74,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
             setImagePreviews(prev => [...prev, ...newPreviews]);
           }
         };
-        reader.onerror = ()_ => {
+        reader.onerror = () => {
           console.error("Error reading file:", file.name);
           // Optionally, show an error message to the user
         };
@@ -93,7 +94,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
   };
 
   return (
-    <Card className="w-full shadow-xl">
+    <Card className="w-full shadow-xl bg-card/50 backdrop-blur-sm border-border/20">
       <CardHeader>
         <CardTitle className="text-2xl flex items-center gap-2">
           <Sparkles className="text-primary" />
@@ -105,7 +106,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(currentOnSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(currentOnSubmit)} className="space-y-6 md:space-y-8">
             <FormField
               control={form.control}
               name="ingredients"
@@ -115,7 +116,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                   <FormControl>
                     <Textarea
                       placeholder="e.g., chicken breast, broccoli, soy sauce, garlic"
-                      className="min-h-[100px] resize-y"
+                      className="min-h-[100px] resize-y bg-background/70"
                       {...field}
                       aria-label="Ingredients"
                     />
@@ -133,7 +134,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                   <FormControl>
                     <Textarea
                       placeholder="e.g., vegetarian, gluten-free, low-carb"
-                      className="min-h-[70px] resize-y"
+                      className="min-h-[70px] resize-y bg-background/70"
                       {...field}
                       aria-label="Dietary Preferences"
                     />
@@ -151,7 +152,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                   multiple
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="cursor-pointer"
+                  className="cursor-pointer file:text-primary file:font-semibold"
                   aria-label="Upload ingredient images"
                 />
               </FormControl>
@@ -184,7 +185,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
               </div>
             )}
 
-            <Button type="submit" disabled={isLoading || form.formState.isSubmitting} className="w-full sm:w-auto text-lg py-6 px-8">
+            <Button type="submit" disabled={isLoading || form.formState.isSubmitting} size="lg" className="w-full sm:w-auto text-lg py-6 px-8 shadow-lg shadow-primary/20">
               {isLoading || form.formState.isSubmitting ? (
                 <>
                   <Sparkles className="mr-2 h-5 w-5 animate-pulse" />
