@@ -1,5 +1,7 @@
-# Firebase Studio
+# Recipe Snap
 
-This is a NextJS starter in Firebase Studio.
+This is a Next.js application that uses AI to generate recipes based on ingredients or photos.
 
-To get started, take a look at src/app/page.tsx.
+This project was built with Firebase Studio.
+
+You can find the GitHub repository here: https://github.com/hari1vkp/recipie-generator
