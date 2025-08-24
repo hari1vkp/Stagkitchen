@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -80,7 +81,7 @@ export default function SavedRecipesClient() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-primary">Your Saved Recipes</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {savedRecipes.map((recipe) => (
           <Card key={recipe.id} className="flex flex-col bg-card border-border/60 shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardHeader className="p-0">

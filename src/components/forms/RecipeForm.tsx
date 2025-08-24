@@ -142,7 +142,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className="flex flex-row gap-4 pt-2"
+                      className="flex flex-col sm:flex-row gap-4 pt-2"
                     >
                       <FormItem className="flex items-center space-x-3 space-y-0">
                         <FormControl>
