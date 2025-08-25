@@ -1,15 +1,15 @@
-# Recipe Snap
+# StagKitchen
 
 ## Description
-Recipe Snap is a web application designed to make meal planning and cooking easier and more inspiring. It leverages the power of AI to generate unique recipes based on your preferences and available ingredients.
+StagKitchen is a web application designed to make meal planning and cooking easier and more inspiring, especially for bachelors. It leverages the power of AI to generate unique recipes based on your preferences and available ingredients.
 
 
 
 ## Use Case
-Recipe Snap is ideal for anyone looking for new recipes, wanting to use up ingredients they have on hand, or needing recipe ideas based on dietary restrictions or preferences.
+StagKitchen is ideal for anyone looking for new recipes, wanting to use up ingredients they have on hand, or needing recipe ideas based on dietary restrictions or preferences.
 
 ## What this App Does
-Recipe Snap allows users to input ingredients, dietary restrictions, and other preferences. It then uses AI to generate a custom recipe based on this information. The app also provides the functionality to save generated recipes for future reference. Future development aims to include generating recipes from photos of ingredients.
+StagKitchen allows users to input ingredients, dietary restrictions, and other preferences. It then uses AI to generate a custom recipe based on this information. The app also provides the functionality to save generated recipes for future reference. Future development aims to include generating recipes from photos of ingredients.
 
 ## Tech Stack
 

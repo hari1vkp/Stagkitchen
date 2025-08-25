@@ -7,8 +7,8 @@ import Header from '@/components/layout/Header';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Recipe Snap',
-  description: 'AI-powered recipe generation with photos',
+  title: 'StagKitchen',
+  description: 'AI-powered recipes for bachelors',
 };
 
 export default function RootLayout({

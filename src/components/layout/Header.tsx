@@ -10,7 +10,7 @@ export default function Header() {
           <div className="bg-accent p-2 rounded-lg">
             <Soup size={28} className="text-accent-foreground" />
           </div>
-          <h1 className="text-2xl font-bold">Recipe Snap</h1>
+          <h1 className="text-2xl font-bold">StagKitchen</h1>
         </Link>
         <nav>
           <ul className="flex items-center gap-2">
