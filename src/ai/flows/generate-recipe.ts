@@ -108,8 +108,7 @@ const generateRecipePrompt = ai.definePrompt({
   Nutritional Info: [e.g., Calories: 350, Protein: 20g, Carbs: 30g, Fat: 15g]
   YouTube Link: [Search URL]
 
-  After generating the recipe, create a visually appealing image of the finished dish.
-  Please respond with the recipe details and image data URI.`,
+  Please respond with ONLY the recipe details. Do not generate an image.`,
 });
 
 const generateRecipeFlow = ai.defineFlow(
@@ -130,27 +129,38 @@ const generateRecipeFlow = ai.defineFlow(
       });
     }
 
-    const {output: recipe} = await generateRecipePrompt({
+    const recipePromise = generateRecipePrompt({
       ...input,
       isImageFinishedDish: input.imageType === 'finishedDish',
       isTextInputFinishedDish: input.inputType === 'finishedDish',
       // @ts-ignore
-      images: promptParts.length > 0 ? promptParts : undefined, // Pass processed images
+      images: promptParts.length > 0 ? promptParts : undefined,
     });
+
+    // We get the recipe name first to generate a better image prompt.
+    // This adds a small delay but results in a better image.
+    const tempRecipe = await recipePromise;
+    if (!tempRecipe.output) {
+      throw new Error('Failed to start recipe generation');
+    }
+
+    const imagePromise = ai.generate({
+        model: 'googleai/gemini-2.0-flash-preview-image-generation',
+        prompt: `Generate a photo of the finished ${tempRecipe.output.recipeName} dish.`,
+        config: {
+          responseModalities: ['TEXT', 'IMAGE'],
+        },
+      });
+
+    // Now we wait for both to complete
+    const [{output: recipe}, {media}] = await Promise.all([
+        recipePromise,
+        imagePromise
+    ]);
 
     if (!recipe) {
       throw new Error('Failed to generate recipe');
     }
-
-    // Generate image in parallel with text
-    const {media} = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-preview-image-generation',
-      prompt: `Generate a photo of the finished ${recipe.recipeName} dish.`,
-      config: {
-        responseModalities: ['TEXT', 'IMAGE'],
-      },
-    });
-
 
     return {
       recipeName: recipe.recipeName,
