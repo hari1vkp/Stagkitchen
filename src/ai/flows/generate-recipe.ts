@@ -145,11 +145,7 @@ const generateRecipeFlow = ai.defineFlow(
     // Generate image in parallel with text
     const {media} = await ai.generate({
       model: 'googleai/gemini-2.0-flash-preview-image-generation',
-      prompt: [
-        {
-          text: `Generate a photo of the finished ${recipe.recipeName} dish.`,
-        },
-      ],
+      prompt: `Generate a photo of the finished ${recipe.recipeName} dish.`,
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
       },
