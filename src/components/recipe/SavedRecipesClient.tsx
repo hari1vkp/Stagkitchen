@@ -181,7 +181,6 @@ export default function SavedRecipesClient() {
               )}
               {selectedRecipe.youtubeLink && (
                  <div>
-                    <h3 className="font-semibold text-lg mb-2 text-accent flex items-center gap-2"><Youtube size={20} /> Watch a Video:</h3>
                     <Button asChild variant="outline">
                         <a href={selectedRecipe.youtubeLink} target="_blank" rel="noopener noreferrer">
                            <Youtube className="mr-2 h-4 w-4" /> Watch on YouTube
