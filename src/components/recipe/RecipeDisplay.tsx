@@ -68,15 +68,15 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-        <div className="space-y-6 md:order-2">
+      <CardContent className="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+        <div className="space-y-6 lg:order-2">
            {recipe.photoDataUri ? (
             <div className="relative w-full aspect-square md:aspect-[4/3] rounded-lg overflow-hidden shadow-lg self-start">
               <Image
                 src={recipe.photoDataUri}
                 alt={recipe.recipeName || "Generated Recipe Image"}
-                layout="fill"
-                objectFit="cover"
+                fill
+                className="object-cover"
                 data-ai-hint="dish food"
               />
             </div>
@@ -101,20 +101,9 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
               <p className="text-foreground/90">{recipe.nutritionalInfo}</p>
             </div>
           )}
-
-          {recipe.youtubeLink && (
-            <div>
-              <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-accent">
-                <Youtube size={24} /> Watch a Video
-              </h3>
-              <a href={recipe.youtubeLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">
-                {recipe.youtubeLink}
-              </a>
-            </div>
-          )}
         </div>
 
-        <div className="space-y-6 md:order-1">
+        <div className="space-y-6 lg:order-1">
           <div>
             <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-accent">
               <ShoppingBasket size={24} /> Ingredients
@@ -150,11 +139,19 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
         
       </CardContent>
 
-      <CardFooter className="p-4 md:p-6 bg-secondary/20 border-t">
-        <Button onClick={handleSaveRecipe} size="lg" className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90">
+      <CardFooter className="p-4 md:p-6 bg-secondary/20 border-t flex flex-wrap gap-4 justify-start">
+        <Button onClick={handleSaveRecipe} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
           <Save className="mr-2 h-5 w-5" />
           Save Recipe
         </Button>
+         {recipe.youtubeLink && (
+            <Button asChild variant="outline" size="lg">
+              <a href={recipe.youtubeLink} target="_blank" rel="noopener noreferrer">
+                <Youtube className="mr-2 h-5 w-5" />
+                Watch on YouTube
+              </a>
+            </Button>
+          )}
       </CardFooter>
     </Card>
   );

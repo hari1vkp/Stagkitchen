@@ -44,7 +44,7 @@ const GenerateRecipeOutputSchema = z.object({
   ingredients: z.string().describe('A list of ingredients required for the recipe.'),
   instructions: z.string().describe('Step-by-step cooking instructions for the recipe.'),
   nutritionalInfo: z.string().optional().describe('Estimated nutritional information for the recipe (e.g., calories, protein, carbs, fat).'),
-  youtubeLink: z.string().optional().describe('A URL to a YouTube video showing how to make a similar recipe.'),
+  youtubeLink: z.string().optional().describe('A YouTube search URL for a video showing how to make a similar recipe.'),
   photoDataUri: z
     .string()
     .optional()
@@ -98,7 +98,7 @@ const generateRecipePrompt = ai.definePrompt({
   Consider any dietary preferences provided: {{{dietaryPreferences}}}
 
   Also, provide estimated nutritional information for the generated recipe.
-  Finally, search for and provide a relevant YouTube link that shows how to cook a similar dish.
+  Finally, create a YouTube search query for a video showing how to cook a similar dish, and format it as a search URL (e.g., https://www.youtube.com/results?search_query=how+to+make+...).
 
   Format the response as follows:
 
@@ -106,7 +106,7 @@ const generateRecipePrompt = ai.definePrompt({
   Ingredients: [List of ingredients with quantities]
   Instructions: [Step-by-step cooking instructions]
   Nutritional Info: [e.g., Calories: 350, Protein: 20g, Carbs: 30g, Fat: 15g]
-  YouTube Link: [URL]
+  YouTube Link: [Search URL]
 
   After generating the recipe, create a visually appealing image of the finished dish.
   Please respond with the recipe details and image data URI.`,

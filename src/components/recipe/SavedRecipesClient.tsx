@@ -96,7 +96,7 @@ export default function SavedRecipesClient() {
             <CardHeader className="p-0">
               {recipe.photoDataUri ? (
                  <div className="relative w-full h-48 overflow-hidden">
-                    <Image src={recipe.photoDataUri} alt={recipe.recipeName || "Recipe image"} layout="fill" objectFit="cover" data-ai-hint="food photography" className="rounded-t-lg"/>
+                    <Image src={recipe.photoDataUri} alt={recipe.recipeName || "Recipe image"} fill className="object-cover rounded-t-lg" data-ai-hint="food photography"/>
                   </div>
               ) : (
                 <div className="relative w-full h-48 bg-muted flex items-center justify-center rounded-t-lg">
@@ -154,7 +154,7 @@ export default function SavedRecipesClient() {
             <div className="py-4 space-y-4">
               {selectedRecipe.photoDataUri ? (
                 <div className="relative w-full aspect-video rounded-md overflow-hidden">
-                  <Image src={selectedRecipe.photoDataUri} alt={selectedRecipe.recipeName || "Recipe"} layout="fill" objectFit="cover" data-ai-hint="delicious food"/>
+                  <Image src={selectedRecipe.photoDataUri} alt={selectedRecipe.recipeName || "Recipe"} fill className="object-cover" data-ai-hint="delicious food"/>
                 </div>
               ) : (
                  <div className="relative w-full aspect-video rounded-md overflow-hidden bg-muted flex items-center justify-center">
@@ -180,11 +180,13 @@ export default function SavedRecipesClient() {
                 </div>
               )}
               {selectedRecipe.youtubeLink && (
-                <div>
-                  <h3 className="font-semibold text-lg mb-2 text-accent flex items-center gap-2"><Youtube size={20} /> Watch a Video:</h3>
-                  <a href={selectedRecipe.youtubeLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">
-                    {selectedRecipe.youtubeLink}
-                  </a>
+                 <div>
+                    <h3 className="font-semibold text-lg mb-2 text-accent flex items-center gap-2"><Youtube size={20} /> Watch a Video:</h3>
+                    <Button asChild variant="outline">
+                        <a href={selectedRecipe.youtubeLink} target="_blank" rel="noopener noreferrer">
+                           <Youtube className="mr-2 h-4 w-4" /> Watch on YouTube
+                        </a>
+                    </Button>
                 </div>
               )}
             </div>
