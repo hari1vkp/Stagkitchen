@@ -84,20 +84,23 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
   const nutritionalInfoList = formatNutritionalInfo(recipe.nutritionalInfo);
 
   return (
-    <Card className="w-full shadow-2xl overflow-hidden bg-card border-border/60">
-      <CardHeader className="bg-secondary/30 p-4 md:p-6">
-        <CardTitle className="text-2xl md:text-3xl font-bold text-primary flex items-center gap-3">
-          <ChefHat size={32} className="text-accent" /> {recipe.recipeName || "Your Delicious Recipe"}
+    <Card className="finpay-card finpay-card-hover overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-finpay-teal-50/30 to-finpay-blue-50/30 p-6 md:p-8 border-b border-finpay-gray-200">
+        <CardTitle className="text-3xl md:text-4xl font-bold finpay-gradient-text flex items-center gap-4">
+          <div className="bg-gradient-to-r from-finpay-teal-500 to-finpay-blue-500 p-3 rounded-xl shadow-md">
+            <ChefHat size={32} className="text-white" />
+          </div>
+          {recipe.recipeName || "Your Delicious Recipe"}
         </CardTitle>
-        <CardDescription className="text-muted-foreground text-base pt-1">
+        <CardDescription className="text-finpay-gray-600 text-lg pt-2">
           Enjoy this AI-generated culinary creation!
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-        <div className="space-y-6 lg:order-2">
+      <CardContent className="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        <div className="space-y-8 lg:order-2">
            {recipe.photoDataUri ? (
-            <div className="relative w-full aspect-square md:aspect-[4/3] rounded-lg overflow-hidden shadow-lg self-start">
+            <div className="relative w-full aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 self-start">
               <Image
                 src={recipe.photoDataUri}
                 alt={recipe.recipeName || "Generated Recipe Image"}
@@ -107,7 +110,7 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
               />
             </div>
           ) : (
-            <div className="relative w-full aspect-square md:aspect-[4/3] rounded-lg overflow-hidden shadow-md bg-muted flex items-center justify-center">
+            <div className="relative w-full aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden shadow-md bg-finpay-gray-100 flex items-center justify-center">
               <Image
                 src="https://placehold.co/400x300.png"
                 alt="Placeholder image"
@@ -120,17 +123,20 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
           )}
 
           {nutritionalInfoList.length > 0 && (
-            <div>
-              <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-accent">
-                <Info size={24} /> Nutritional Info
+            <div className="finpay-card p-6">
+              <h3 className="text-xl font-semibold mb-4 flex items-center gap-3 text-finpay-teal-600">
+                <div className="bg-finpay-teal-100 p-2 rounded-lg">
+                  <Info size={24} className="text-finpay-teal-600" />
+                </div>
+                Nutritional Info
               </h3>
-              <ul className="space-y-2">
+              <ul className="space-y-3">
                 {nutritionalInfoList.map((info, index) => (
                   <li 
                     key={index} 
-                    className="text-foreground/90 bg-secondary/30 p-2 rounded-md transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-secondary/50 cursor-pointer"
+                    className="text-finpay-gray-700 bg-finpay-teal-50/50 p-3 rounded-lg transition-all duration-300 ease-in-out hover:scale-105 hover:bg-finpay-teal-100/50 cursor-pointer border border-finpay-teal-200/30"
                   >
-                   - {info}
+                   • {info}
                   </li>
                 ))}
               </ul>
@@ -138,49 +144,55 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
           )}
         </div>
 
-        <div className="space-y-6 lg:order-1">
-          <div>
-            <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-accent">
-              <ShoppingBasket size={24} /> Ingredients
+        <div className="space-y-8 lg:order-1">
+          <div className="finpay-card p-6">
+            <h3 className="text-xl font-semibold mb-4 flex items-center gap-3 text-finpay-blue-600">
+              <div className="bg-finpay-blue-100 p-2 rounded-lg">
+                <ShoppingBasket size={24} className="text-finpay-blue-600" />
+              </div>
+              Ingredients
             </h3>
             {ingredientsList.length > 0 ? (
-              <ol className="list-decimal list-inside space-y-2.5 text-foreground/90 pl-2">
+              <ol className="list-decimal list-inside space-y-3 text-finpay-gray-700 pl-2">
                 {ingredientsList.map((ingredient, index) => (
-                  <li key={index} className="bg-secondary/20 p-2 rounded-md transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-secondary/40 cursor-pointer">{ingredient}</li>
+                  <li key={index} className="bg-finpay-blue-50/50 p-3 rounded-lg transition-all duration-300 ease-in-out hover:scale-105 hover:bg-finpay-blue-100/50 cursor-pointer border border-finpay-blue-200/30">{ingredient}</li>
                 ))}
               </ol>
             ) : (
-              <p className="text-muted-foreground">No ingredients listed.</p>
+              <p className="text-finpay-gray-600">No ingredients listed.</p>
             )}
           </div>
 
-          <Separator />
+          <Separator className="bg-finpay-gray-200" />
 
-          <div>
-            <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-accent">
-              <ListChecks size={24} /> Instructions
+          <div className="finpay-card p-6">
+            <h3 className="text-xl font-semibold mb-4 flex items-center gap-3 text-finpay-purple-600">
+              <div className="bg-finpay-purple-100 p-2 rounded-lg">
+                <ListChecks size={24} className="text-finpay-purple-600" />
+              </div>
+              Instructions
             </h3>
             {instructionsList.length > 0 ? (
-              <ol className="list-decimal list-inside space-y-3 text-foreground/90 pl-2">
+              <ol className="list-decimal list-inside space-y-4 text-finpay-gray-700 pl-2">
                 {instructionsList.map((step, index) => (
-                  <li key={index} className="bg-secondary/20 p-2 rounded-md transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-secondary/40 cursor-pointer">{step}</li>
+                  <li key={index} className="bg-finpay-purple-50/50 p-3 rounded-lg transition-all duration-300 ease-in-out hover:scale-105 hover:bg-finpay-purple-100/50 cursor-pointer border border-finpay-purple-200/30">{step}</li>
                 ))}
               </ol>
             ) : (
-              <p className="text-muted-foreground">No instructions provided.</p>
+              <p className="text-finpay-gray-600">No instructions provided.</p>
             )}
           </div>
         </div>
         
       </CardContent>
 
-      <CardFooter className="p-4 md:p-6 bg-secondary/20 border-t flex flex-wrap gap-4 justify-start">
-        <Button onClick={handleSaveRecipe} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
+      <CardFooter className="p-6 md:p-8 bg-gradient-to-r from-finpay-teal-50/30 to-finpay-blue-50/30 border-t border-finpay-gray-200 flex flex-wrap gap-4 justify-start">
+        <Button onClick={handleSaveRecipe} size="lg" className="finpay-button-accent">
           <Save className="mr-2 h-5 w-5" />
           Save Recipe
         </Button>
          {recipe.youtubeLink && (
-            <Button asChild variant="outline" size="lg">
+            <Button asChild variant="outline" size="lg" className="finpay-button-secondary">
               <a href={recipe.youtubeLink} target="_blank" rel="noopener noreferrer">
                 <Youtube className="mr-2 h-5 w-5" />
                 Watch on YouTube
