@@ -31,17 +31,9 @@ import type { SavedRecipe } from '@/types/recipe';
 
 const formatList = (text?: string): string[] => {
   if (!text) return [];
-
-  // Check if the list is numbered (e.g., "1.", "2.")
-  if (/^\s*\d+\.\s*/m.test(text)) {
-    return text.split(/\s*\d+\.\s*/)
-      .map(item => item.trim())
-      .filter(item => item.length > 0 && !/^\s*$/.test(item));
-  }
-
-  // Handle various other delimiters (newlines, commas, bullets) and clean up each item
-  return text.split(/[\n,]/)
-    .map(item => item.replace(/^[\s*-–—]+/, '').trim())
+  return text
+    .split(/\n/)
+    .map(item => item.replace(/^\s*\d+\.\s*/, '').trim())
     .filter(item => item.length > 0 && !/^\s*$/.test(item));
 };
 
