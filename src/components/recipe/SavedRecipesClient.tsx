@@ -29,17 +29,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from '@/hooks/use-toast';
 import type { SavedRecipe } from '@/types/recipe';
 
-const formatList = (text?: string, isInstructions = false): string[] => {
+const formatList = (text?: string): string[] => {
   if (!text) return [];
 
-  if (isInstructions) {
-    // Split by number followed by a period (e.g., "1.", "2."), handling potential newlines
+  // Check if the list is numbered (e.g., "1.", "2.")
+  if (/^\s*\d+\./m.test(text)) {
     return text.split(/\s*\d+\.\s*/)
       .map(item => item.trim())
       .filter(item => item.length > 0 && !/^\s*$/.test(item));
   }
 
-  // Handle various delimiters for ingredients and clean up each item
+  // Handle various other delimiters (newlines, commas, bullets) and clean up each item
   return text.split(/[\n,]/)
     .map(item => item.replace(/^[\s*-–—]+/, '').trim())
     .filter(item => item.length > 0 && !/^\s*$/.test(item));
@@ -171,7 +171,7 @@ export default function SavedRecipesClient() {
               <div>
                 <h3 className="font-semibold text-lg mb-2 text-accent flex items-center gap-2"><ListChecks size={20} /> Instructions:</h3>
                 <ol className="list-decimal list-inside text-foreground/90 space-y-2">
-                  {formatList(selectedRecipe.instructions, true).map((step, i) => <li key={i}>{step}</li>)}
+                  {formatList(selectedRecipe.instructions).map((step, i) => <li key={i}>{step}</li>)}
                 </ol>
               </div>
                {selectedRecipe.nutritionalInfo && (

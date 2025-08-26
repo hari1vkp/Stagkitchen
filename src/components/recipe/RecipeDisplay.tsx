@@ -13,17 +13,17 @@ interface RecipeDisplayProps {
   recipe: Recipe;
 }
 
-const formatList = (text?: string, isInstructions = false): string[] => {
+const formatList = (text?: string): string[] => {
   if (!text) return [];
 
-  if (isInstructions) {
-    // Split by number followed by a period (e.g., "1.", "2."), handling potential newlines
+  // Check if the list is numbered (e.g., "1.", "2.")
+  if (/^\s*\d+\./m.test(text)) {
     return text.split(/\s*\d+\.\s*/)
       .map(item => item.trim())
       .filter(item => item.length > 0 && !/^\s*$/.test(item));
   }
 
-  // Handle various delimiters for ingredients and clean up each item
+  // Handle various other delimiters (newlines, commas, bullets) and clean up each item
   return text.split(/[\n,]/)
     .map(item => item.replace(/^[\s*-–—]+/, '').trim())
     .filter(item => item.length > 0 && !/^\s*$/.test(item));
@@ -55,7 +55,7 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
   };
 
   const ingredientsList = formatList(recipe.ingredients);
-  const instructionsList = formatList(recipe.instructions, true);
+  const instructionsList = formatList(recipe.instructions);
 
   return (
     <Card className="w-full shadow-2xl overflow-hidden bg-card border-border/60">
