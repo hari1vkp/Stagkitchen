@@ -35,19 +35,21 @@ const formatList = (text?: string): string[] => {
   if (currentItem) {
     result.push(currentItem.trim());
   }
-  
+
   if (result.length > 1) {
     return result.filter(item => item.length > 0 && !/^\s*$/.test(item));
   }
-  
-  // Fallback for semicolon or comma separated lists on a single line
+
   const separator = text.includes(';') ? ';' : ',';
-  return text.split(separator).map(item => item.trim()).filter(item => item.length > 0);
+  if (text.includes(separator)) {
+    return text.split(separator).map(item => item.trim()).filter(item => item.length > 0);
+  }
+
+  return [text];
 };
 
 const formatNutritionalInfo = (text?: string): string[] => {
     if (!text) return [];
-    // Split by comma, then trim each item. Handles "key: value" pairs.
     return text.split(',').map(item => item.trim()).filter(item => item.length > 0);
 }
 
@@ -142,9 +144,9 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
               <ShoppingBasket size={24} /> Ingredients
             </h3>
             {ingredientsList.length > 0 ? (
-              <ol className="list-decimal list-inside space-y-1.5 text-foreground/90 pl-2">
+              <ol className="list-decimal list-inside space-y-2.5 text-foreground/90 pl-2">
                 {ingredientsList.map((ingredient, index) => (
-                  <li key={index}>{ingredient}</li>
+                  <li key={index} className="bg-secondary/20 p-2 rounded-md transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-secondary/40 cursor-pointer">{ingredient}</li>
                 ))}
               </ol>
             ) : (
@@ -159,9 +161,9 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
               <ListChecks size={24} /> Instructions
             </h3>
             {instructionsList.length > 0 ? (
-              <ol className="list-decimal list-inside space-y-2 text-foreground/90 pl-2">
+              <ol className="list-decimal list-inside space-y-3 text-foreground/90 pl-2">
                 {instructionsList.map((step, index) => (
-                  <li key={index}>{step}</li>
+                  <li key={index} className="bg-secondary/20 p-2 rounded-md transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-secondary/40 cursor-pointer">{step}</li>
                 ))}
               </ol>
             ) : (
