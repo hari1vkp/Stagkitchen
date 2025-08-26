@@ -15,14 +15,23 @@ interface RecipeDisplayProps {
 
 const formatList = (text?: string): string[] => {
   if (!text) return [];
-  
-  // Check if the list is semicolon-separated or newline-separated.
-  const separator = text.includes(';') ? ';' : /\n/;
 
+  // Determine the separator by checking for semicolons first, then commas.
+  const separator = text.includes(';') ? ';' : ',';
+
+  // For instructions, which are typically newline-separated.
+  if (!text.includes(';') && !text.includes(',')) {
+    return text
+      .split(/\n/)
+      .map(item => item.replace(/^\s*(\d+\.?|-|\*)\s*/, '').trim())
+      .filter(item => item.length > 0 && !/^\s*$/.test(item));
+  }
+  
+  // For ingredients separated by semicolons or commas.
   return text
     .split(separator)
-    .map(item => item.replace(/^\s*(\d+\.?|-|\*)\s*/, '').trim())
-    .filter(item => item.length > 0 && !/^\s*$/.test(item));
+    .map(item => item.trim())
+    .filter(item => item.length > 0);
 };
 
 export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
