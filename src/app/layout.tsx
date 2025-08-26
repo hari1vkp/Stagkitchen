@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import Header from '@/components/layout/Header';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -20,8 +21,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} antialiased flex flex-col min-h-screen bg-background finpay-bg-shapes`}>
+        <Script id="theme-init" strategy="beforeInteractive">{`
+(function(){
+  try{
+    var saved = localStorage.getItem('theme');
+    var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var theme = saved ? saved : (systemDark ? 'dark' : 'light');
+    var root = document.documentElement;
+    if(theme === 'dark') root.classList.add('dark'); else root.classList.remove('dark');
+  }catch(e){}
+})();
+        `}</Script>
         <Header />
         <main className="flex-grow container mx-auto px-4 py-8">
           {children}

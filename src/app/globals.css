@@ -59,10 +59,10 @@ body {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 222.2 84% 6.5%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 222.2 84% 6.5%;
     --popover-foreground: 210 40% 98%;
 
     --primary: 210 40% 98%;
@@ -83,7 +83,7 @@ body {
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
-    
+
     /* Sidebar dark colors */
     --sidebar-background: 222.2 84% 4.9%;
     --sidebar-foreground: 210 40% 98%;
@@ -114,11 +114,11 @@ body {
 @layer components {
   /* Finpay UI Component Styles */
   .finpay-sidebar {
-    @apply bg-white border-r border-finpay-gray-200 w-80 min-h-screen p-6;
+    @apply bg-white dark:bg-background border-r dark:border-border w-80 min-h-screen p-6;
   }
   
   .finpay-card {
-    @apply bg-white rounded-2xl shadow-lg border border-finpay-gray-100 p-6;
+    @apply bg-white dark:bg-card rounded-2xl shadow-lg border border-finpay-gray-100 dark:border-border p-6 text-foreground;
   }
   
   .finpay-card-hover {
@@ -130,7 +130,7 @@ body {
   }
   
   .finpay-button-secondary {
-    @apply bg-finpay-gray-100 hover:bg-finpay-gray-200 text-finpay-gray-700 font-semibold py-3 px-6 rounded-xl transition-all duration-300;
+    @apply bg-finpay-gray-100 dark:bg-muted hover:bg-finpay-gray-200 dark:hover:bg-muted/70 text-finpay-gray-700 dark:text-foreground font-semibold py-3 px-6 rounded-xl transition-all duration-300;
   }
   
   .finpay-button-accent {
@@ -138,35 +138,35 @@ body {
   }
   
   .finpay-input {
-    @apply bg-finpay-gray-50 border border-finpay-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-finpay-teal-500 focus:border-transparent transition-all duration-300 placeholder:text-finpay-gray-400;
+    @apply bg-finpay-gray-50 dark:bg-muted/40 border border-finpay-gray-200 dark:border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-finpay-teal-500 focus:border-transparent transition-all duration-300 placeholder:text-finpay-gray-400 dark:placeholder:text-muted-foreground;
   }
   
   .finpay-textarea {
-    @apply bg-finpay-gray-50 border border-finpay-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-finpay-teal-500 focus:border-transparent transition-all duration-300 placeholder:text-finpay-gray-400 resize-y;
+    @apply bg-finpay-gray-50 dark:bg-muted/40 border border-finpay-gray-200 dark:border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-finpay-teal-500 focus:border-transparent transition-all duration-300 placeholder:text-finpay-gray-400 dark:placeholder:text-muted-foreground resize-y;
   }
   
   .finpay-radio {
-    @apply w-4 h-4 text-finpay-teal-600 bg-finpay-gray-50 border-finpay-gray-200 focus:ring-finpay-teal-500 focus:ring-2;
+    @apply w-4 h-4 text-finpay-teal-600 bg-finpay-gray-50 dark:bg-muted border-finpay-gray-200 dark:border-border focus:ring-finpay-teal-500 focus:ring-2;
   }
   
   .finpay-checkbox {
-    @apply w-4 h-4 text-finpay-teal-600 bg-finpay-gray-50 border-finpay-gray-200 rounded focus:ring-finpay-teal-500 focus:ring-2;
+    @apply w-4 h-4 text-finpay-teal-600 bg-finpay-gray-50 dark:bg-muted border-finpay-gray-200 dark:border-border rounded focus:ring-finpay-teal-500 focus:ring-2;
   }
   
   .finpay-badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-finpay-blue-100 text-finpay-blue-800;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-finpay-blue-100 dark:bg-muted text-finpay-blue-800 dark:text-foreground;
   }
   
   .finpay-badge-success {
-    @apply bg-finpay-teal-100 text-finpay-teal-800;
+    @apply bg-finpay-teal-100 dark:bg-muted text-finpay-teal-800 dark:text-foreground;
   }
   
   .finpay-badge-warning {
-    @apply bg-finpay-pink-100 text-finpay-pink-800;
+    @apply bg-finpay-pink-100 dark:bg-muted text-finpay-pink-800 dark:text-foreground;
   }
   
   .finpay-badge-error {
-    @apply bg-red-100 text-red-800;
+    @apply bg-red-100 dark:bg-muted text-red-800 dark:text-foreground;
   }
   
   .finpay-gradient-text {
@@ -174,7 +174,7 @@ body {
   }
   
   .finpay-divider {
-    @apply border-t border-finpay-gray-200 my-6;
+    @apply border-t border-finpay-gray-200 dark:border-border my-6;
   }
   
   .finpay-section {
@@ -200,4 +200,23 @@ body {
     pointer-events: none;
     z-index: -1;
   }
+}
+
+@layer utilities {
+  /* Dark overrides for Finpay gray utility usages inside components */
+  .dark .text-finpay-gray-900 { color: hsl(var(--foreground)); }
+  .dark .text-finpay-gray-700 { color: hsl(var(--foreground)); }
+  .dark .text-finpay-gray-600 { color: hsl(var(--muted-foreground)); }
+  .dark .text-finpay-gray-500 { color: hsl(var(--muted-foreground)); }
+
+  .dark .bg-finpay-gray-50 { background-color: hsl(var(--muted)); }
+  .dark .bg-finpay-gray-100 { background-color: hsl(var(--muted)); }
+  .dark .bg-finpay-purple-50\/50 { background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent); }
+  .dark .bg-finpay-blue-50\/50 { background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent); }
+  .dark .bg-finpay-teal-50\/50 { background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent); }
+
+  .dark .border-finpay-gray-100 { border-color: hsl(var(--border)); }
+  .dark .border-finpay-teal-200\/30 { border-color: hsl(var(--border)); }
+  .dark .border-finpay-blue-200\/30 { border-color: hsl(var(--border)); }
+  .dark .border-finpay-purple-200\/30 { border-color: hsl(var(--border)); }
 }
