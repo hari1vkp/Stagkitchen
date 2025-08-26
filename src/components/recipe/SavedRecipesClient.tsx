@@ -31,9 +31,13 @@ import type { SavedRecipe } from '@/types/recipe';
 
 const formatList = (text?: string): string[] => {
   if (!text) return [];
+  
+  // Handles lists separated by newlines, optional numbering/bullets, or semicolons.
+  const separator = text.includes(';') ? ';' : /\n/;
+
   return text
-    .split(/\n/)
-    .map(item => item.replace(/^\s*\d+\.\s*/, '').trim())
+    .split(separator)
+    .map(item => item.replace(/^\s*(\d+\.?|-|\*)\s*/, '').trim())
     .filter(item => item.length > 0 && !/^\s*$/.test(item));
 };
 
