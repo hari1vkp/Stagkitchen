@@ -16,16 +16,16 @@ interface RecipeDisplayProps {
 const formatList = (text?: string): string[] => {
   if (!text) return [];
 
-  // Determine the separator by checking for semicolons first, then commas.
-  const separator = text.includes(';') ? ';' : ',';
-
   // For instructions, which are typically newline-separated.
-  if (!text.includes(';') && !text.includes(',')) {
-    return text
+  if (text.includes('\n')) {
+     return text
       .split(/\n/)
       .map(item => item.replace(/^\s*(\d+\.?|-|\*)\s*/, '').trim())
       .filter(item => item.length > 0 && !/^\s*$/.test(item));
   }
+
+  // Determine the separator by checking for semicolons first, then commas.
+  const separator = text.includes(';') ? ';' : ',';
   
   // For ingredients separated by semicolons or commas.
   return text
@@ -33,6 +33,7 @@ const formatList = (text?: string): string[] => {
     .map(item => item.trim())
     .filter(item => item.length > 0);
 };
+
 
 export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
   const { toast } = useToast();
