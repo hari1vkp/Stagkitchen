@@ -33,7 +33,7 @@ const formatList = (text?: string): string[] => {
   if (!text) return [];
 
   // Check if the list is numbered (e.g., "1.", "2.")
-  if (/^\s*\d+\./m.test(text)) {
+  if (/^\s*\d+\.\s*/m.test(text)) {
     return text.split(/\s*\d+\.\s*/)
       .map(item => item.trim())
       .filter(item => item.length > 0 && !/^\s*$/.test(item));
@@ -164,9 +164,9 @@ export default function SavedRecipesClient() {
               )}
               <div>
                 <h3 className="font-semibold text-lg mb-2 text-accent flex items-center gap-2"><ShoppingBasket size={20} /> Ingredients:</h3>
-                <ul className="list-disc list-inside text-foreground/90 space-y-1">
+                <ol className="list-decimal list-inside text-foreground/90 space-y-1">
                   {formatList(selectedRecipe.ingredients).map((ing, i) => <li key={i}>{ing}</li>)}
-                </ul>
+                </ol>
               </div>
               <div>
                 <h3 className="font-semibold text-lg mb-2 text-accent flex items-center gap-2"><ListChecks size={20} /> Instructions:</h3>

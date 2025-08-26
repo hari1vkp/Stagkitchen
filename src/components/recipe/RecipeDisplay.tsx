@@ -17,7 +17,7 @@ const formatList = (text?: string): string[] => {
   if (!text) return [];
 
   // Check if the list is numbered (e.g., "1.", "2.")
-  if (/^\s*\d+\./m.test(text)) {
+  if (/^\s*\d+\.\s*/m.test(text)) {
     return text.split(/\s*\d+\.\s*/)
       .map(item => item.trim())
       .filter(item => item.length > 0 && !/^\s*$/.test(item));
@@ -109,11 +109,11 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
               <ShoppingBasket size={24} /> Ingredients
             </h3>
             {ingredientsList.length > 0 ? (
-              <ul className="list-disc list-inside space-y-1.5 text-foreground/90 pl-2">
+              <ol className="list-decimal list-inside space-y-1.5 text-foreground/90 pl-2">
                 {ingredientsList.map((ingredient, index) => (
                   <li key={index}>{ingredient}</li>
                 ))}
-              </ul>
+              </ol>
             ) : (
               <p className="text-muted-foreground">No ingredients listed.</p>
             )}
