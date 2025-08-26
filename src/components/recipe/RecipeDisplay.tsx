@@ -16,7 +16,7 @@ interface RecipeDisplayProps {
 const formatList = (text?: string): string[] => {
   if (!text) return [];
   
-  // Handles lists separated by newlines, optional numbering/bullets, or semicolons.
+  // Check if the list is semicolon-separated or newline-separated.
   const separator = text.includes(';') ? ';' : /\n/;
 
   return text
