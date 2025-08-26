@@ -40,7 +40,7 @@ const formatList = (text?: string, isInstructions = false): string[] => {
   }
 
   // Handle various delimiters for ingredients and clean up each item
-  return text.split(/[\n,]+/)
+  return text.split(/[\n,]/)
     .map(item => item.replace(/^[\s*-–—]+/, '').trim())
     .filter(item => item.length > 0 && !/^\s*$/.test(item));
 };
