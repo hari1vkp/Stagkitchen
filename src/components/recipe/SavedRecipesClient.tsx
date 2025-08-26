@@ -36,14 +36,15 @@ const formatList = (text?: string, isInstructions = false): string[] => {
     // Split by number followed by a period (e.g., "1.", "2."), handling potential newlines
     return text.split(/\s*\d+\.\s*/)
       .map(item => item.trim())
-      .filter(item => item.length > 0);
+      .filter(item => item.length > 0 && !/^\s*$/.test(item));
   }
 
-  // Original logic for ingredients
-  return text.split(/[\n,]/)
-    .map(item => item.replace(/^[\s*-]+/, '').trim())
-    .filter(item => item.length > 0);
+  // Handle various delimiters for ingredients and clean up each item
+  return text.split(/[\n,]+/)
+    .map(item => item.replace(/^[\s*-–—]+/, '').trim())
+    .filter(item => item.length > 0 && !/^\s*$/.test(item));
 };
+
 
 export default function SavedRecipesClient() {
   const [savedRecipes, setSavedRecipes] = useState<SavedRecipe[]>([]);
