@@ -16,23 +16,40 @@ interface RecipeDisplayProps {
 const formatList = (text?: string): string[] => {
   if (!text) return [];
 
-  // For instructions, which are typically newline-separated.
-  if (text.includes('\n')) {
-     return text
-      .split(/\n/)
-      .map(item => item.replace(/^\s*(\d+\.?|-|\*)\s*/, '').trim())
-      .filter(item => item.length > 0 && !/^\s*$/.test(item));
+  const lines = text.split(/\r?\n/);
+  const result: string[] = [];
+  let currentItem = '';
+
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    if (/^\s*(\d+\.?|-|\*)\s*/.test(trimmedLine)) {
+      if (currentItem) {
+        result.push(currentItem.trim());
+      }
+      currentItem = trimmedLine.replace(/^\s*(\d+\.?|-|\*)\s*/, '');
+    } else if (trimmedLine) {
+      currentItem += ` ${trimmedLine}`;
+    }
   }
 
-  // Determine the separator by checking for semicolons first, then commas.
-  const separator = text.includes(';') ? ';' : ',';
+  if (currentItem) {
+    result.push(currentItem.trim());
+  }
   
-  // For ingredients separated by semicolons or commas.
-  return text
-    .split(separator)
-    .map(item => item.trim())
-    .filter(item => item.length > 0);
+  if (result.length > 1) {
+    return result.filter(item => item.length > 0 && !/^\s*$/.test(item));
+  }
+  
+  // Fallback for semicolon or comma separated lists on a single line
+  const separator = text.includes(';') ? ';' : ',';
+  return text.split(separator).map(item => item.trim()).filter(item => item.length > 0);
 };
+
+const formatNutritionalInfo = (text?: string): string[] => {
+    if (!text) return [];
+    // Split by comma, then trim each item. Handles "key: value" pairs.
+    return text.split(',').map(item => item.trim()).filter(item => item.length > 0);
+}
 
 
 export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
@@ -62,6 +79,7 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
 
   const ingredientsList = formatList(recipe.ingredients);
   const instructionsList = formatList(recipe.instructions);
+  const nutritionalInfoList = formatNutritionalInfo(recipe.nutritionalInfo);
 
   return (
     <Card className="w-full shadow-2xl overflow-hidden bg-card border-border/60">
@@ -99,12 +117,21 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
             </div>
           )}
 
-          {recipe.nutritionalInfo && (
+          {nutritionalInfoList.length > 0 && (
             <div>
               <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-accent">
                 <Info size={24} /> Nutritional Info
               </h3>
-              <p className="text-foreground/90">{recipe.nutritionalInfo}</p>
+              <ul className="space-y-2">
+                {nutritionalInfoList.map((info, index) => (
+                  <li 
+                    key={index} 
+                    className="text-foreground/90 bg-secondary/30 p-2 rounded-md transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-secondary/50 cursor-pointer"
+                  >
+                   - {info}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </div>
