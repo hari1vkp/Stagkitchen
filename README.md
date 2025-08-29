@@ -229,6 +229,11 @@ Ensure these are set in production:
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## 👥 Team
+
+**StagKitchen Team:**
+- **Hariharasudhan R** - Lead Developer & Project Creator
+
 ## 🙏 Acknowledgments
 
 - **Google AI** for providing the Gemini language model
