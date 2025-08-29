@@ -13,6 +13,7 @@
 
 ### 📅 **Daily Meal Planning** *(NEW!)*
 - **Complete Daily Plans**: Generate breakfast, lunch, dinner, and snacks for the entire day
+- **Smart Calorie Calculator**: Calculate maintenance calories based on height, weight, age, sex, and activity level
 - **Calorie Control**: Set target daily calories (800-5000 range) with nutritional balance
 - **Flexible Meal Count**: Choose between 3-6 meals per day
 - **Ingredient Optimization**: Uses available ingredients to create balanced meal plans
@@ -163,12 +164,15 @@ Custom color palette matching Finpay UI design:
 
 ### **Daily Meal Planning**
 1. Click the "Daily Meal Plan" tab
-2. Set your target daily calories
-3. Choose number of meals (3-6)
-4. List available ingredients
-5. Add dietary restrictions
-6. Upload ingredient photos (optional)
-7. Generate your complete meal plan
+2. **Optional**: Use the calorie calculator to determine your maintenance calories
+   - Enter your height, weight, age, sex, and activity level
+   - Get scientifically calculated daily calorie needs
+3. Set your target daily calories (or use calculated value)
+4. Choose number of meals (3-6)
+5. List available ingredients
+6. Add dietary restrictions
+7. Upload ingredient photos (optional)
+8. Generate your complete meal plan
 
 ### **Managing Recipes**
 1. Use the "Saved Recipes" tab

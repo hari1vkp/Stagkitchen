@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Calendar, Target, Utensils, XIcon } from "lucide-react";
+import { Calendar, Target, Utensils, XIcon, Calculator, Info } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { DailyMealPlanInput } from "@/ai/flows/generate-daily-meal-plan";
 
 const formSchema = z.object({
@@ -42,8 +44,28 @@ interface DailyMealPlanFormProps {
   isLoading: boolean;
 }
 
+// Calorie calculation using Mifflin-St Jeor Equation
+const calculateMaintenanceCalories = (weight: number, height: number, age: number, sex: string, activityLevel: string) => {
+  // BMR calculation (Mifflin-St Jeor Equation)
+  let bmr = 10 * weight + 6.25 * height - 5 * age;
+  bmr = sex === 'male' ? bmr + 5 : bmr - 161;
+  
+  // Activity multiplier
+  const activityMultipliers = {
+    'sedentary': 1.2,      // Little or no exercise
+    'light': 1.375,        // Light exercise 1-3 days/week
+    'moderate': 1.55,      // Moderate exercise 3-5 days/week
+    'active': 1.725,       // Hard exercise 6-7 days/week
+    'very-active': 1.9     // Very hard exercise, physical job
+  };
+  
+  return Math.round(bmr * activityMultipliers[activityLevel as keyof typeof activityMultipliers]);
+};
+
 export default function DailyMealPlanForm({ onSubmit, isLoading }: DailyMealPlanFormProps) {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [showCalorieCalculator, setShowCalorieCalculator] = useState(false);
+  const [calculatedCalories, setCalculatedCalories] = useState<number | null>(null);
   
   const form = useForm<DailyMealPlanFormValues>({
     resolver: zodResolver(formSchema),
@@ -55,6 +77,27 @@ export default function DailyMealPlanForm({ onSubmit, isLoading }: DailyMealPlan
       images: [],
     },
   });
+
+  const [calculatorForm, setCalculatorForm] = useState({
+    weight: '',
+    height: '',
+    age: '',
+    sex: 'male',
+    activityLevel: 'moderate'
+  });
+
+  const handleCalculatorSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const weight = parseFloat(calculatorForm.weight);
+    const height = parseFloat(calculatorForm.height);
+    const age = parseInt(calculatorForm.age);
+    
+    if (weight && height && age) {
+      const calories = calculateMaintenanceCalories(weight, height, age, calculatorForm.sex, calculatorForm.activityLevel);
+      setCalculatedCalories(calories);
+      form.setValue('targetCalories', calories);
+    }
+  };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -155,6 +198,114 @@ export default function DailyMealPlanForm({ onSubmit, isLoading }: DailyMealPlan
                       Recommended: 1500-2500 calories per day
                     </FormDescription>
                     <FormMessage />
+                    
+                    {/* Calorie Calculator Section */}
+                    <div className="mt-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowCalorieCalculator(!showCalorieCalculator)}
+                        className="finpay-button-secondary text-sm"
+                      >
+                        <Calculator className="h-4 w-4 mr-2" />
+                        {showCalorieCalculator ? 'Hide' : 'Calculate'} Maintenance Calories
+                      </Button>
+                      
+                      {showCalorieCalculator && (
+                        <Card className="mt-3 p-4 bg-finpay-gray-50/50 dark:bg-muted/30 border border-finpay-gray-200/30 dark:border-border">
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-sm font-semibold text-finpay-gray-900 dark:text-foreground">
+                                Calculate Your Daily Calorie Needs
+                              </h4>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <Info className="h-4 w-4 text-finpay-gray-500" />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Uses the Mifflin-St Jeor Equation to calculate your Basal Metabolic Rate (BMR) and applies activity level multipliers.</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-2">
+                              <Input
+                                type="number"
+                                placeholder="Weight (kg)"
+                                value={calculatorForm.weight}
+                                onChange={(e) => setCalculatorForm({...calculatorForm, weight: e.target.value})}
+                                className="finpay-input text-sm"
+                              />
+                              <Input
+                                type="number"
+                                placeholder="Height (cm)"
+                                value={calculatorForm.height}
+                                onChange={(e) => setCalculatorForm({...calculatorForm, height: e.target.value})}
+                                className="finpay-input text-sm"
+                              />
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-2">
+                              <Input
+                                type="number"
+                                placeholder="Age"
+                                value={calculatorForm.age}
+                                onChange={(e) => setCalculatorForm({...calculatorForm, age: e.target.value})}
+                                className="finpay-input text-sm"
+                              />
+                              <Select value={calculatorForm.sex} onValueChange={(value) => setCalculatorForm({...calculatorForm, sex: value})}>
+                                <SelectTrigger className="finpay-input text-sm">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="male">Male</SelectItem>
+                                  <SelectItem value="female">Female</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            
+                            <Select value={calculatorForm.activityLevel} onValueChange={(value) => setCalculatorForm({...calculatorForm, activityLevel: value})}>
+                              <SelectTrigger className="finpay-input text-sm">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="sedentary">Sedentary (Little/no exercise)</SelectItem>
+                                <SelectItem value="light">Light (1-3 days/week)</SelectItem>
+                                <SelectItem value="moderate">Moderate (3-5 days/week)</SelectItem>
+                                <SelectItem value="active">Active (6-7 days/week)</SelectItem>
+                                <SelectItem value="very-active">Very Active (Physical job)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            
+                            <Button
+                              type="button"
+                              onClick={handleCalculatorSubmit}
+                              className="finpay-button-primary text-sm w-full"
+                              disabled={!calculatorForm.weight || !calculatorForm.height || !calculatorForm.age}
+                            >
+                              Calculate Calories
+                            </Button>
+                            
+                            {calculatedCalories && (
+                              <div className="text-center p-3 bg-finpay-teal-50 dark:bg-finpay-teal-900/20 rounded-lg border border-finpay-teal-200/30 dark:border-finpay-teal-800/30">
+                                <p className="text-sm text-finpay-gray-600 dark:text-muted-foreground">
+                                  Your maintenance calories:
+                                </p>
+                                <p className="text-xl font-bold text-finpay-teal-600 dark:text-finpay-teal-400">
+                                  {calculatedCalories} calories/day
+                                </p>
+                                <p className="text-xs text-finpay-gray-500 dark:text-muted-foreground mt-1">
+                                  This has been set as your target calories
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </Card>
+                      )}
+                    </div>
                   </FormItem>
                 )}
               />
