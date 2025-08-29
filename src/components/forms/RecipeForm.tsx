@@ -30,7 +30,9 @@ const formSchema = z.object({
   images: z.array(z.string()).optional(),
   inputType: z.enum(["ingredients", "finishedDish"]).default("ingredients"),
 }).refine(data => {
-    return !!data.ingredients || (!!data.images && data.images.length > 0);
+    const hasIngredients = !!data.ingredients && data.ingredients.trim().length > 0;
+    const hasImages = !!data.images && data.images.length > 0;
+    return hasIngredients || hasImages;
 }, {
     message: "Please provide ingredients, a dish name, or at least one image.",
     path: ["ingredients"],
@@ -63,19 +65,22 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
     if (files) {
       const currentFilesArray = Array.from(files);
       const newPreviews: string[] = [];
-      const newFormImages: string[] = [];
-      event.target.value = "";
-
+      
       let filesToProcess = currentFilesArray.length;
+      let processedFiles = 0;
+
+      if (filesToProcess === 0) {
+        return;
+      }
 
       currentFilesArray.forEach(file => {
         if (!file.type.startsWith("image/")) {
           console.warn(`File ${file.name} is not an image and will be skipped.`);
-          filesToProcess--;
-          if(filesToProcess === 0) {
-             const allImages = [...imagePreviews, ...newPreviews];
-             setImagePreviews(allImages);
-             form.setValue("images", allImages, { shouldValidate: true });
+          processedFiles++;
+          if (processedFiles === filesToProcess) {
+            const allImages = [...imagePreviews, ...newPreviews];
+            setImagePreviews(allImages);
+            form.setValue("images", allImages, { shouldValidate: true });
           }
           return;
         }
@@ -84,25 +89,33 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
         reader.onloadend = () => {
           const result = reader.result as string;
           newPreviews.push(result);
-          newFormImages.push(result);
+          processedFiles++;
           
-          if (newPreviews.length === filesToProcess) {
-             const allImages = [...imagePreviews, ...newPreviews];
-             setImagePreviews(allImages);
-             form.setValue("images", allImages, { shouldValidate: true });
+          if (processedFiles === filesToProcess) {
+            const allImages = [...imagePreviews, ...newPreviews];
+            setImagePreviews(allImages);
+            form.setValue("images", allImages, { shouldValidate: true });
+            
+            // Set default imageType if not already set
+            if (!form.getValues("imageType") && allImages.length > 0) {
+              form.setValue("imageType", "finishedDish", { shouldValidate: true });
+            }
           }
         };
         reader.onerror = () => {
           console.error("Error reading file:", file.name);
-           filesToProcess--;
-           if(filesToProcess === 0) {
-             const allImages = [...imagePreviews, ...newPreviews];
-             setImagePreviews(allImages);
-             form.setValue("images", allImages, { shouldValidate: true });
+          processedFiles++;
+          if (processedFiles === filesToProcess) {
+            const allImages = [...imagePreviews, ...newPreviews];
+            setImagePreviews(allImages);
+            form.setValue("images", allImages, { shouldValidate: true });
           }
         };
         reader.readAsDataURL(file);
       });
+      
+      // Clear the input value to allow re-selecting the same files
+      event.target.value = "";
     }
   };
 
@@ -113,33 +126,35 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
   };
 
   const currentOnSubmit = (values: RecipeFormValues) => {
-    onSubmit({ ...values, images: imagePreviews });
+    console.log('Form submission values:', values);
+    console.log('Image previews:', imagePreviews);
+    onSubmit({ ...values, images: values.images || imagePreviews });
   };
 
   const inputType = form.watch("inputType");
 
   return (
     <Card className="finpay-card finpay-card-hover">
-      <CardHeader className="text-center">
-        <CardTitle className="text-3xl md:text-4xl flex items-center justify-center gap-3 font-bold finpay-gradient-text">
-          <div className="bg-gradient-to-r from-finpay-teal-500 to-finpay-blue-500 p-3 rounded-xl shadow-md">
-            <Sparkles className="text-white" />
+      <CardHeader className="text-center p-4 md:p-6">
+        <CardTitle className="text-2xl sm:text-3xl md:text-4xl flex flex-col sm:flex-row items-center justify-center gap-3 font-bold finpay-gradient-text">
+          <div className="bg-gradient-to-r from-finpay-teal-500 to-finpay-blue-500 p-2 md:p-3 rounded-xl shadow-md">
+            <Sparkles className="text-white h-5 w-5 md:h-6 md:w-6" />
           </div>
           Create Your Recipe
         </CardTitle>
-        <CardDescription className="text-lg text-finpay-gray-600">
+        <CardDescription className="text-base md:text-lg text-finpay-gray-600 dark:text-muted-foreground px-2">
           Tell us what you have, and we'll whip up a recipe for you.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 md:p-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(currentOnSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(currentOnSubmit)} className="space-y-6 md:space-y-8">
             <FormField
               control={form.control}
               name="inputType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg font-semibold text-finpay-gray-900">What are you providing?</FormLabel>
+                  <FormLabel className="text-base md:text-lg font-semibold text-finpay-gray-900 dark:text-foreground">What are you providing?</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
@@ -150,7 +165,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                         <FormControl>
                           <RadioGroupItem value="ingredients" className="finpay-radio" />
                         </FormControl>
-                        <FormLabel className="font-normal text-base text-finpay-gray-700">
+                        <FormLabel className="font-normal text-sm md:text-base text-finpay-gray-700 dark:text-foreground cursor-pointer">
                           Ingredients
                         </FormLabel>
                       </FormItem>
@@ -158,7 +173,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                         <FormControl>
                           <RadioGroupItem value="finishedDish" className="finpay-radio" />
                         </FormControl>
-                        <FormLabel className="font-normal text-base text-finpay-gray-700">
+                        <FormLabel className="font-normal text-sm md:text-base text-finpay-gray-700 dark:text-foreground cursor-pointer">
                           Finished Dish
                         </FormLabel>
                       </FormItem>
@@ -169,13 +184,13 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                <FormField
                   control={form.control}
                   name="ingredients"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-lg font-semibold text-finpay-gray-900">
+                      <FormLabel className="text-base md:text-lg font-semibold text-finpay-gray-900 dark:text-foreground">
                         {inputType === 'ingredients' ? 'Ingredients' : 'Finished Dish Name'}
                       </FormLabel>
                       <FormControl>
@@ -185,7 +200,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                               ? "e.g., chicken breast, broccoli, soy sauce"
                               : "e.g., Spaghetti Carbonara"
                           }
-                          className="finpay-textarea min-h-[120px]"
+                          className="finpay-textarea min-h-[100px] md:min-h-[120px] text-sm md:text-base"
                           {...field}
                           aria-label={
                             inputType === "ingredients"
@@ -204,11 +219,11 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                   name="dietaryPreferences"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-lg font-semibold text-finpay-gray-900">Dietary Preferences (Optional)</FormLabel>
+                      <FormLabel className="text-base md:text-lg font-semibold text-finpay-gray-900 dark:text-foreground">Dietary Preferences (Optional)</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="e.g., vegetarian, gluten-free, low-carb"
-                          className="finpay-textarea min-h-[120px]"
+                          className="finpay-textarea min-h-[100px] md:min-h-[120px] text-sm md:text-base"
                           {...field}
                           aria-label="Dietary Preferences"
                         />
@@ -220,8 +235,8 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
             </div>
             
             <FormItem>
-              <FormLabel className="text-lg font-semibold text-finpay-gray-900">Upload Photos (Optional)</FormLabel>
-               <FormDescription className="text-finpay-gray-600">
+              <FormLabel className="text-base md:text-lg font-semibold text-finpay-gray-900 dark:text-foreground">Upload Photos (Optional)</FormLabel>
+               <FormDescription className="text-sm md:text-base text-finpay-gray-600 dark:text-muted-foreground">
                 You can upload photos of ingredients or a finished dish.
               </FormDescription>
               <FormControl>
@@ -230,7 +245,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                   multiple
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="finpay-input cursor-pointer file:text-finpay-teal-600 file:font-semibold hover:bg-finpay-gray-100 transition-all duration-300"
+                  className="finpay-input cursor-pointer file:text-finpay-teal-600 file:font-semibold hover:bg-finpay-gray-100 dark:hover:bg-muted/60 transition-all duration-300 text-sm md:text-base"
                   aria-label="Upload ingredient images"
                 />
               </FormControl>
@@ -243,27 +258,30 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                 name="imageType"
                 render={({ field }) => (
                   <FormItem className="space-y-4">
-                    <FormLabel className="text-lg font-semibold text-finpay-gray-900">What's in the photos?</FormLabel>
+                    <FormLabel className="text-base md:text-lg font-semibold text-finpay-gray-900 dark:text-foreground">What's in the photos?</FormLabel>
+                    <FormDescription className="text-sm md:text-base text-finpay-gray-600 dark:text-muted-foreground">
+                      This helps the AI understand how to analyze your images correctly.
+                    </FormDescription>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex flex-col md:flex-row gap-4"
+                        value={field.value}
+                        className="flex flex-col gap-4"
                       >
-                        <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormItem className="flex items-start space-x-3 space-y-0">
                           <FormControl>
-                            <RadioGroupItem value="ingredients" className="finpay-radio" />
+                            <RadioGroupItem value="ingredients" className="finpay-radio mt-1" />
                           </FormControl>
-                          <FormLabel className="font-normal text-base text-finpay-gray-700">
-                            Individual Ingredients
+                          <FormLabel className="font-normal text-sm md:text-base text-finpay-gray-700 dark:text-foreground cursor-pointer leading-relaxed">
+                            Individual Ingredients (raw items like vegetables, spices, etc.)
                           </FormLabel>
                         </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormItem className="flex items-start space-x-3 space-y-0">
                           <FormControl>
-                            <RadioGroupItem value="finishedDish" className="finpay-radio" />
+                            <RadioGroupItem value="finishedDish" className="finpay-radio mt-1" />
                           </FormControl>
-                          <FormLabel className="font-normal text-base text-finpay-gray-700">
-                            A Finished Dish
+                          <FormLabel className="font-normal text-sm md:text-base text-finpay-gray-700 dark:text-foreground cursor-pointer leading-relaxed">
+                            A Finished Dish (cooked food ready to eat)
                           </FormLabel>
                         </FormItem>
                       </RadioGroup>
@@ -276,23 +294,23 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
 
             {imagePreviews.length > 0 && (
               <div>
-                <FormLabel className="text-md font-semibold text-finpay-gray-900">Image Previews:</FormLabel>
-                <div className="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+                <FormLabel className="text-sm md:text-base font-semibold text-finpay-gray-900 dark:text-foreground">Image Previews:</FormLabel>
+                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
                   {imagePreviews.map((preview, index) => (
                     <div key={index} className="relative group aspect-square">
                       <img
                         src={preview}
                         alt={`Preview ${index + 1}`}
-                        className="rounded-xl object-cover h-full w-full shadow-md hover:shadow-lg transition-all duration-300"
+                        className="rounded-lg md:rounded-xl object-cover h-full w-full shadow-md hover:shadow-lg transition-all duration-300"
                       />
                       <Button
                         variant="destructive"
                         size="icon"
-                        className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-red-500 hover:bg-red-600"
+                        className="absolute top-1 right-1 h-5 w-5 md:h-6 md:w-6 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-red-500 hover:bg-red-600"
                         onClick={() => handleRemoveImage(index)}
                         aria-label={`Remove image ${index + 1}`}
                       >
-                        <XIcon className="h-4 w-4" />
+                        <XIcon className="h-3 w-3 md:h-4 md:w-4" />
                       </Button>
                     </div>
                   ))}
@@ -305,16 +323,16 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                 type="submit" 
                 disabled={isLoading || form.formState.isSubmitting} 
                 size="lg" 
-                className="finpay-button-primary text-lg py-6 px-12 text-xl font-bold"
+                className="finpay-button-primary text-base md:text-lg py-4 md:py-6 px-8 md:px-12 font-bold w-full sm:w-auto"
               >
                 {isLoading || form.formState.isSubmitting ? (
                   <>
-                    <Sparkles className="mr-2 h-6 w-6 animate-pulse" />
+                    <Sparkles className="mr-2 h-5 w-5 md:h-6 md:w-6 animate-pulse" />
                     Generating...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="mr-2 h-6 w-6" />
+                    <Sparkles className="mr-2 h-5 w-5 md:h-6 md:w-6" />
                     Generate Recipe
                   </>
                 )}

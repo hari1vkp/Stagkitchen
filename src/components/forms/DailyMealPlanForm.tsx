@@ -433,22 +433,22 @@ export default function DailyMealPlanForm({ onSubmit, isLoading }: DailyMealPlan
               </div>
             )}
 
-            <div className="text-center pt-4">
+            <div className="text-center pt-4 px-2">
               <Button 
                 type="submit" 
                 disabled={isLoading || form.formState.isSubmitting} 
                 size="lg" 
-                className="finpay-button-primary text-lg py-6 px-12 text-xl font-bold"
+                className="finpay-button-primary w-full sm:w-auto text-sm sm:text-lg py-3 sm:py-6 px-6 sm:px-12 font-bold"
               >
                 {isLoading || form.formState.isSubmitting ? (
                   <>
-                    <Calendar className="mr-2 h-6 w-6 animate-pulse" />
-                    Planning...
+                    <Calendar className="mr-2 h-4 w-4 sm:h-6 sm:w-6 animate-pulse" />
+                    <span className="text-sm sm:text-xl">Planning...</span>
                   </>
                 ) : (
                   <>
-                    <Calendar className="mr-2 h-6 w-6" />
-                    Generate Daily Meal Plan
+                    <Calendar className="mr-2 h-4 w-4 sm:h-6 sm:w-6" />
+                    <span className="text-sm sm:text-xl">Generate Daily Meal Plan</span>
                   </>
                 )}
               </Button>

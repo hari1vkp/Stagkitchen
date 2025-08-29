@@ -138,7 +138,7 @@ body {
   }
   
   .finpay-card {
-    @apply bg-white dark:bg-card rounded-2xl shadow-lg border border-finpay-gray-100 dark:border-border p-6 text-foreground;
+    @apply bg-white dark:bg-card rounded-xl md:rounded-2xl shadow-lg border border-finpay-gray-100 dark:border-border p-4 md:p-6 text-foreground;
   }
   
   .finpay-card-hover {
@@ -146,23 +146,23 @@ body {
   }
   
   .finpay-button-primary {
-    @apply bg-gradient-to-r from-finpay-teal-500 to-finpay-blue-500 hover:from-finpay-teal-600 hover:to-finpay-blue-600 text-white font-semibold py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300;
+    @apply bg-gradient-to-r from-finpay-teal-500 to-finpay-blue-500 hover:from-finpay-teal-600 hover:to-finpay-blue-600 text-white font-semibold py-2 px-4 md:py-3 md:px-6 rounded-lg md:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 text-sm md:text-base;
   }
   
   .finpay-button-secondary {
-    @apply bg-finpay-gray-100 dark:bg-muted hover:bg-finpay-gray-200 dark:hover:bg-muted/70 text-finpay-gray-700 dark:text-foreground font-semibold py-3 px-6 rounded-xl transition-all duration-300;
+    @apply bg-finpay-gray-100 dark:bg-muted hover:bg-finpay-gray-200 dark:hover:bg-muted/70 text-finpay-gray-700 dark:text-foreground font-semibold py-2 px-4 md:py-3 md:px-6 rounded-lg md:rounded-xl transition-all duration-300 text-sm md:text-base;
   }
   
   .finpay-button-accent {
-    @apply bg-finpay-purple-500 hover:bg-finpay-purple-600 text-white font-semibold py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300;
+    @apply bg-finpay-purple-500 hover:bg-finpay-purple-600 text-white font-semibold py-2 px-4 md:py-3 md:px-6 rounded-lg md:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 text-sm md:text-base;
   }
   
   .finpay-input {
-    @apply bg-finpay-gray-50 dark:bg-muted/40 border border-finpay-gray-200 dark:border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-finpay-teal-500 focus:border-transparent transition-all duration-300 placeholder:text-finpay-gray-400 dark:placeholder:text-muted-foreground;
+    @apply bg-finpay-gray-50 dark:bg-muted/40 border border-finpay-gray-200 dark:border-border rounded-lg md:rounded-xl px-3 py-2 md:px-4 md:py-3 focus:ring-2 focus:ring-finpay-teal-500 focus:border-transparent transition-all duration-300 placeholder:text-finpay-gray-400 dark:placeholder:text-muted-foreground text-sm md:text-base;
   }
   
   .finpay-textarea {
-    @apply bg-finpay-gray-50 dark:bg-muted/40 border border-finpay-gray-200 dark:border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-finpay-teal-500 focus:border-transparent transition-all duration-300 placeholder:text-finpay-gray-400 dark:placeholder:text-muted-foreground resize-y;
+    @apply bg-finpay-gray-50 dark:bg-muted/40 border border-finpay-gray-200 dark:border-border rounded-lg md:rounded-xl px-3 py-2 md:px-4 md:py-3 focus:ring-2 focus:ring-finpay-teal-500 focus:border-transparent transition-all duration-300 placeholder:text-finpay-gray-400 dark:placeholder:text-muted-foreground resize-y text-sm md:text-base;
   }
   
   .finpay-radio {
@@ -231,12 +231,39 @@ body {
 
   .dark .bg-finpay-gray-50 { background-color: hsl(var(--muted)); }
   .dark .bg-finpay-gray-100 { background-color: hsl(var(--muted)); }
+  .dark .bg-finpay-gray-200 { background-color: hsl(var(--muted)); }
+  .dark .bg-finpay-gray-300 { background-color: hsl(var(--muted-foreground) / 0.2); }
   .dark .bg-finpay-purple-50\/50 { background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent); }
   .dark .bg-finpay-blue-50\/50 { background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent); }
   .dark .bg-finpay-teal-50\/50 { background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent); }
+  .dark .bg-finpay-yellow-50\/50 { background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent); }
+  .dark .bg-finpay-orange-50\/50 { background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent); }
 
   .dark .border-finpay-gray-100 { border-color: hsl(var(--border)); }
+  .dark .border-finpay-gray-200 { border-color: hsl(var(--border)); }
   .dark .border-finpay-teal-200\/30 { border-color: hsl(var(--border)); }
   .dark .border-finpay-blue-200\/30 { border-color: hsl(var(--border)); }
   .dark .border-finpay-purple-200\/30 { border-color: hsl(var(--border)); }
+  .dark .border-finpay-yellow-200\/30 { border-color: hsl(var(--border)); }
+
+  /* Responsive text utilities */
+  .text-responsive-xs { @apply text-xs sm:text-sm; }
+  .text-responsive-sm { @apply text-sm sm:text-base; }
+  .text-responsive-base { @apply text-base sm:text-lg; }
+  .text-responsive-lg { @apply text-lg sm:text-xl; }
+  .text-responsive-xl { @apply text-xl sm:text-2xl; }
+  .text-responsive-2xl { @apply text-2xl sm:text-3xl; }
+  .text-responsive-3xl { @apply text-3xl sm:text-4xl; }
+
+  /* Responsive padding utilities */
+  .p-responsive { @apply p-4 md:p-6 lg:p-8; }
+  .px-responsive { @apply px-4 md:px-6 lg:px-8; }
+  .py-responsive { @apply py-4 md:py-6 lg:py-8; }
+
+  /* Responsive gap utilities */
+  .gap-responsive { @apply gap-4 md:gap-6 lg:gap-8; }
+  .gap-responsive-sm { @apply gap-2 md:gap-3 lg:gap-4; }
+
+  /* Mobile-first button utilities */
+  .btn-mobile-full { @apply w-full sm:w-auto; }
 }
