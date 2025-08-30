@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from '@/components/ui/separator';
 import type { Recipe, SavedRecipe } from '@/types/recipe'; // Using defined types
 import { useToast } from '@/hooks/use-toast';
+import ShoppingList from './ShoppingList';
 
 interface RecipeDisplayProps {
   recipe: Recipe;
@@ -201,6 +202,14 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
               <p className="text-sm md:text-base text-finpay-gray-600 dark:text-muted-foreground">No instructions provided.</p>
             )}
           </div>
+        </div>
+        
+        {/* Shopping List */}
+        <div className="lg:col-span-2">
+          <ShoppingList 
+            ingredients={recipe.ingredients || ''} 
+            recipeName={recipe.recipeName || 'Recipe'} 
+          />
         </div>
         
       </CardContent>

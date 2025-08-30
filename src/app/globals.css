@@ -1,6 +1,8 @@
+/* stylelint-disable at-rule-no-unknown */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* stylelint-enable at-rule-no-unknown */
 
 body {
   font-family: 'Inter', Arial, Helvetica, sans-serif;
@@ -8,22 +10,79 @@ body {
 
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* Micro-animations */
-@keyframes fade-in { from { opacity: 0 } to { opacity: 1 } }
-@keyframes slide-up { from { transform: translateY(8px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
-@keyframes pop { 0% { transform: scale(0.98); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
+@keyframes fade-in {
+  from {
+    opacity: 0
+  }
+
+  to {
+    opacity: 1
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(8px);
+    opacity: 0
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.98);
+    opacity: 0
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1
+  }
+}
 
 @layer utilities {
-  .animate-fade-in { animation: fade-in .4s ease both; }
-  .animate-slide-up { animation: slide-up .45s var(--ease, cubic-bezier(.22,1,.36,1)) both; }
-  .animate-pop { animation: pop .35s var(--ease, cubic-bezier(.22,1,.36,1)) both; }
-  .hover-lift { transition: transform .25s ease, box-shadow .25s ease; }
-  .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,.08); }
-  .pressable { transition: transform .12s ease; }
-  .pressable:active { transform: scale(.98); }
+  .animate-fade-in {
+    animation: fade-in .4s ease both;
+  }
+
+  .animate-slide-up {
+    animation: slide-up .45s var(--ease, cubic-bezier(.22, 1, .36, 1)) both;
+  }
+
+  .animate-pop {
+    animation: pop .35s var(--ease, cubic-bezier(.22, 1, .36, 1)) both;
+  }
+
+  .hover-lift {
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, .08);
+  }
+
+  .pressable {
+    transition: transform .12s ease;
+  }
+
+  .pressable:active {
+    transform: scale(.98);
+  }
 }
 
 @layer base {
@@ -67,7 +126,7 @@ body {
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 214.3 31.8% 91.4%;
     --sidebar-ring: 222.2 84% 4.9%;
-    
+
     --chart-1: 14 88% 65%;
     --chart-2: 217 91% 60%;
     --chart-3: 262 83% 58%;
@@ -126,85 +185,93 @@ body {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
 @layer components {
+
   /* Finpay UI Component Styles */
   .finpay-sidebar {
     @apply bg-white dark:bg-background border-r dark:border-border w-80 min-h-screen p-6;
   }
-  
+
   .finpay-card {
     @apply bg-white dark:bg-card rounded-xl md:rounded-2xl shadow-lg border border-finpay-gray-100 dark:border-border p-4 md:p-6 text-foreground;
   }
-  
+
   .finpay-card-hover {
     @apply hover:shadow-xl transition-all duration-300;
   }
-  
+
   .finpay-button-primary {
     @apply bg-gradient-to-r from-finpay-teal-500 to-finpay-blue-500 hover:from-finpay-teal-600 hover:to-finpay-blue-600 text-white font-semibold py-2 px-4 md:py-3 md:px-6 rounded-lg md:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 text-sm md:text-base;
   }
-  
+
   .finpay-button-secondary {
     @apply bg-finpay-gray-100 dark:bg-muted hover:bg-finpay-gray-200 dark:hover:bg-muted/70 text-finpay-gray-700 dark:text-foreground font-semibold py-2 px-4 md:py-3 md:px-6 rounded-lg md:rounded-xl transition-all duration-300 text-sm md:text-base;
   }
-  
+
   .finpay-button-accent {
     @apply bg-finpay-purple-500 hover:bg-finpay-purple-600 text-white font-semibold py-2 px-4 md:py-3 md:px-6 rounded-lg md:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 text-sm md:text-base;
   }
-  
+
   .finpay-input {
     @apply bg-finpay-gray-50 dark:bg-muted/40 border border-finpay-gray-200 dark:border-border rounded-lg md:rounded-xl px-3 py-2 md:px-4 md:py-3 focus:ring-2 focus:ring-finpay-teal-500 focus:border-transparent transition-all duration-300 placeholder:text-finpay-gray-400 dark:placeholder:text-muted-foreground text-sm md:text-base;
   }
-  
+
   .finpay-textarea {
     @apply bg-finpay-gray-50 dark:bg-muted/40 border border-finpay-gray-200 dark:border-border rounded-lg md:rounded-xl px-3 py-2 md:px-4 md:py-3 focus:ring-2 focus:ring-finpay-teal-500 focus:border-transparent transition-all duration-300 placeholder:text-finpay-gray-400 dark:placeholder:text-muted-foreground resize-y text-sm md:text-base;
   }
-  
+
   .finpay-radio {
     @apply w-4 h-4 text-finpay-teal-600 bg-finpay-gray-50 dark:bg-muted border-finpay-gray-200 dark:border-border focus:ring-finpay-teal-500 focus:ring-2;
   }
-  
+
   .finpay-checkbox {
     @apply w-4 h-4 text-finpay-teal-600 bg-finpay-gray-50 dark:bg-muted border-finpay-gray-200 dark:border-border rounded focus:ring-finpay-teal-500 focus:ring-2;
   }
-  
+
   .finpay-badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-finpay-blue-100 dark:bg-muted text-finpay-blue-800 dark:text-foreground;
   }
-  
+
   .finpay-badge-success {
     @apply bg-finpay-teal-100 dark:bg-muted text-finpay-teal-800 dark:text-foreground;
   }
-  
+
   .finpay-badge-warning {
     @apply bg-finpay-pink-100 dark:bg-muted text-finpay-pink-800 dark:text-foreground;
   }
-  
+
   .finpay-badge-error {
     @apply bg-red-100 dark:bg-muted text-red-800 dark:text-foreground;
   }
-  
+
   .finpay-gradient-text {
     @apply bg-gradient-to-r from-finpay-teal-600 to-finpay-blue-600 bg-clip-text text-transparent;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+    padding-bottom: 0.1em;
+    line-height: 1.1;
   }
-  
+
   .finpay-divider {
     @apply border-t border-finpay-gray-200 dark:border-border my-6;
   }
-  
+
   .finpay-section {
     @apply py-8 md:py-12;
   }
-  
+
   .finpay-container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
-  
+
   /* Background shapes like Finpay */
   .finpay-bg-shapes::before {
     content: '';
@@ -213,7 +280,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: 
+    background:
       radial-gradient(circle at 20% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
       radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
       radial-gradient(circle at 40% 40%, rgba(20, 184, 170, 0.05) 0%, transparent 50%);
@@ -223,47 +290,137 @@ body {
 }
 
 @layer utilities {
+
   /* Dark overrides for Finpay gray utility usages inside components */
-  .dark .text-finpay-gray-900 { color: hsl(var(--foreground)); }
-  .dark .text-finpay-gray-700 { color: hsl(var(--foreground)); }
-  .dark .text-finpay-gray-600 { color: hsl(var(--muted-foreground)); }
-  .dark .text-finpay-gray-500 { color: hsl(var(--muted-foreground)); }
+  .dark .text-finpay-gray-900 {
+    color: hsl(var(--foreground));
+  }
 
-  .dark .bg-finpay-gray-50 { background-color: hsl(var(--muted)); }
-  .dark .bg-finpay-gray-100 { background-color: hsl(var(--muted)); }
-  .dark .bg-finpay-gray-200 { background-color: hsl(var(--muted)); }
-  .dark .bg-finpay-gray-300 { background-color: hsl(var(--muted-foreground) / 0.2); }
-  .dark .bg-finpay-purple-50\/50 { background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent); }
-  .dark .bg-finpay-blue-50\/50 { background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent); }
-  .dark .bg-finpay-teal-50\/50 { background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent); }
-  .dark .bg-finpay-yellow-50\/50 { background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent); }
-  .dark .bg-finpay-orange-50\/50 { background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent); }
+  .dark .text-finpay-gray-700 {
+    color: hsl(var(--foreground));
+  }
 
-  .dark .border-finpay-gray-100 { border-color: hsl(var(--border)); }
-  .dark .border-finpay-gray-200 { border-color: hsl(var(--border)); }
-  .dark .border-finpay-teal-200\/30 { border-color: hsl(var(--border)); }
-  .dark .border-finpay-blue-200\/30 { border-color: hsl(var(--border)); }
-  .dark .border-finpay-purple-200\/30 { border-color: hsl(var(--border)); }
-  .dark .border-finpay-yellow-200\/30 { border-color: hsl(var(--border)); }
+  .dark .text-finpay-gray-600 {
+    color: hsl(var(--muted-foreground));
+  }
+
+  .dark .text-finpay-gray-500 {
+    color: hsl(var(--muted-foreground));
+  }
+
+  .dark .bg-finpay-gray-50 {
+    background-color: hsl(var(--muted));
+  }
+
+  .dark .bg-finpay-gray-100 {
+    background-color: hsl(var(--muted));
+  }
+
+  .dark .bg-finpay-gray-200 {
+    background-color: hsl(var(--muted));
+  }
+
+  .dark .bg-finpay-gray-300 {
+    background-color: hsl(var(--muted-foreground) / 0.2);
+  }
+
+  .dark .bg-finpay-purple-50\/50 {
+    background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent);
+  }
+
+  .dark .bg-finpay-blue-50\/50 {
+    background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent);
+  }
+
+  .dark .bg-finpay-teal-50\/50 {
+    background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent);
+  }
+
+  .dark .bg-finpay-yellow-50\/50 {
+    background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent);
+  }
+
+  .dark .bg-finpay-orange-50\/50 {
+    background-color: color-mix(in oklab, hsl(var(--muted)) 50%, transparent);
+  }
+
+  .dark .border-finpay-gray-100 {
+    border-color: hsl(var(--border));
+  }
+
+  .dark .border-finpay-gray-200 {
+    border-color: hsl(var(--border));
+  }
+
+  .dark .border-finpay-teal-200\/30 {
+    border-color: hsl(var(--border));
+  }
+
+  .dark .border-finpay-blue-200\/30 {
+    border-color: hsl(var(--border));
+  }
+
+  .dark .border-finpay-purple-200\/30 {
+    border-color: hsl(var(--border));
+  }
+
+  .dark .border-finpay-yellow-200\/30 {
+    border-color: hsl(var(--border));
+  }
 
   /* Responsive text utilities */
-  .text-responsive-xs { @apply text-xs sm:text-sm; }
-  .text-responsive-sm { @apply text-sm sm:text-base; }
-  .text-responsive-base { @apply text-base sm:text-lg; }
-  .text-responsive-lg { @apply text-lg sm:text-xl; }
-  .text-responsive-xl { @apply text-xl sm:text-2xl; }
-  .text-responsive-2xl { @apply text-2xl sm:text-3xl; }
-  .text-responsive-3xl { @apply text-3xl sm:text-4xl; }
+  .text-responsive-xs {
+    @apply text-xs sm:text-sm;
+  }
+
+  .text-responsive-sm {
+    @apply text-sm sm:text-base;
+  }
+
+  .text-responsive-base {
+    @apply text-base sm:text-lg;
+  }
+
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl;
+  }
+
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl;
+  }
+
+  .text-responsive-2xl {
+    @apply text-2xl sm:text-3xl;
+  }
+
+  .text-responsive-3xl {
+    @apply text-3xl sm:text-4xl;
+  }
 
   /* Responsive padding utilities */
-  .p-responsive { @apply p-4 md:p-6 lg:p-8; }
-  .px-responsive { @apply px-4 md:px-6 lg:px-8; }
-  .py-responsive { @apply py-4 md:py-6 lg:py-8; }
+  .p-responsive {
+    @apply p-4 md:p-6 lg:p-8;
+  }
+
+  .px-responsive {
+    @apply px-4 md:px-6 lg:px-8;
+  }
+
+  .py-responsive {
+    @apply py-4 md:py-6 lg:py-8;
+  }
 
   /* Responsive gap utilities */
-  .gap-responsive { @apply gap-4 md:gap-6 lg:gap-8; }
-  .gap-responsive-sm { @apply gap-2 md:gap-3 lg:gap-4; }
+  .gap-responsive {
+    @apply gap-4 md:gap-6 lg:gap-8;
+  }
+
+  .gap-responsive-sm {
+    @apply gap-2 md:gap-3 lg:gap-4;
+  }
 
   /* Mobile-first button utilities */
-  .btn-mobile-full { @apply w-full sm:w-auto; }
+  .btn-mobile-full {
+    @apply w-full sm:w-auto;
+  }
 }

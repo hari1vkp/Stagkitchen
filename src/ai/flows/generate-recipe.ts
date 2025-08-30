@@ -68,68 +68,60 @@ const generateRecipePrompt = ai.definePrompt({
   name: 'generateRecipePrompt',
   input: {schema: PromptInputSchema},
   output: {schema: GenerateRecipeOutputSchema},
-  prompt: `You are a world-class chef skilled at creating delicious and innovative recipes with expertise in global cuisines including Indian, Asian, European, American, and other international dishes.
-
-Your task is to generate a recipe based on the provided information.
+  prompt: `You are an expert chef with knowledge of cuisines from around the world. Your job is to accurately identify dishes from images and create authentic recipes.
 
 {{#if images}}
   {{#if isImageFinishedDish}}
-    CRITICAL INSTRUCTION: You have been provided with an image of a FINISHED DISH. 
-    
-    Look at the image carefully and identify the specific dish. Be very precise with the dish name - for example:
-    - Say "Masala Dosa with Coconut Chutney and Sambar" not just "crepe" or "pancake"
-    - Say "Chicken Tikka Masala with Basmati Rice" not just "curry"
-    - Say "Margherita Pizza with Fresh Basil" not just "pizza"
+    ANALYZE THE IMAGE CAREFULLY: You are looking at a photo of a completed dish.
     
     {{{images}}}
     
+    IMPORTANT: Look at the actual visual details in the image:
+    - What colors do you see?
+    - What textures and shapes are visible?
+    - What cooking method appears to have been used?
+    - Are there any garnishes or accompaniments?
+    - What cultural cuisine does this appear to be from based on visual cues?
+    
+    Do NOT assume or default to common dishes. Base your identification ONLY on what you can actually see in the image.
+    
     {{#if ingredients}}
-      User provided additional context: {{{ingredients}}}
-      Only use this if it helps clarify what you see, but the image is the primary source of truth.
+      Additional context from user: {{{ingredients}}}
     {{/if}}
     
-    Create an authentic recipe for the EXACT dish you identified in the image.
+    Identify the specific dish and create an authentic recipe for exactly what you see.
   {{else}}
-    CRITICAL INSTRUCTION: You have been provided with images of INDIVIDUAL INGREDIENTS.
-    
-    Examine each image carefully and identify the specific ingredients, then create a recipe using them.
+    ANALYZE THE INGREDIENTS: You are looking at photos of individual ingredients.
     
     {{{images}}}
     
+    Identify each ingredient you can see and create a recipe using them.
+    
     {{#if ingredients}}
-      Additional ingredients mentioned: {{{ingredients}}}
+      Additional ingredients: {{{ingredients}}}
     {{/if}}
   {{/if}}
 {{else}}
   {{#if isTextInputFinishedDish}}
-      You have been provided with the name of a finished dish: {{{ingredients}}}. Generate an authentic recipe for this specific dish.
+    Create a recipe for this dish: {{{ingredients}}}
   {{else}}
-      You have been provided with the following ingredients: {{{ingredients}}}. Create a recipe using these ingredients.
+    Create a recipe using these ingredients: {{{ingredients}}}
   {{/if}}
 {{/if}}
 
-RECIPE CREATION GUIDELINES:
-- Be accurate to the visual content of images (if provided)
-- Consider cultural authenticity for international dishes
-- Provide realistic cooking times and temperatures
-- Include proper seasoning and technique details
-- Consider any dietary preferences: {{{dietaryPreferences}}}
-
-Also, provide estimated nutritional information for the generated recipe.
-Finally, create a YouTube search query for a video showing how to cook this specific dish, and format it as a search URL.
-
-Format the response as follows:
-
-{{#if images}}
-Image Analysis: [Detailed description of what you see in the image - be very specific about the dish identification]
+{{#if dietaryPreferences}}
+Consider these dietary preferences: {{{dietaryPreferences}}}
 {{/if}}
-Recipe Name: [Recipe Name - must match what's actually in the image if image provided]
-Ingredients: [List of ingredients with quantities]
-Instructions: [Step-by-step cooking instructions]
-Nutritional Info: [e.g., Calories: 350, Protein: 20g, Carbs: 30g, Fat: 15g]
-YouTube Link: [Search URL]
 
-Please respond with ONLY the recipe details.`,
+Provide your response in this format:
+{{#if images}}
+Image Analysis: [What you actually see in the image]
+{{/if}}
+Recipe Name: [Name of the dish]
+Ingredients: [List with quantities]
+Instructions: [Step-by-step directions]
+Nutritional Info: [Estimated nutrition facts]
+YouTube Link: [Search URL for cooking video]`,
 });
 
 
@@ -188,7 +180,7 @@ const generateRecipeFlow = ai.defineFlow(
       images: promptParts.length > 0 ? promptParts : undefined,
     }, {
       config: {
-        temperature: 0.0,
+        temperature: 0.3,
         topP: 0.95,
         topK: 40,
         maxOutputTokens: 2048

@@ -15,6 +15,7 @@ import NoRecipeGenerated from "@/components/recipe/NoRecipeGenerated";
 import DailyMealPlanForm from "@/components/forms/DailyMealPlanForm";
 import DailyMealPlanDisplay from "@/components/recipe/DailyMealPlanDisplay";
 import SavedRecipesClient from "@/components/recipe/SavedRecipesClient";
+import SavedDailyMealPlans from "@/components/recipe/SavedDailyMealPlans";
 import type { Recipe } from "@/types/recipe";
 import type { DailyMealPlanInput, DailyMealPlanOutput } from "@/ai/flows/generate-daily-meal-plan";
 
@@ -125,7 +126,7 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-finpay-gray-50 via-white to-finpay-purple-50/50 dark:from-background dark:via-background dark:to-muted/20">
       {/* Welcome Section */}
       <div className="text-center py-8 md:py-12 px-4">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 finpay-gradient-text">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 finpay-gradient-text" style={{lineHeight: '1.1', paddingBottom: '0.05em'}}>
           Welcome to StagKitchen
         </h1>
         <p className="text-lg sm:text-xl text-finpay-gray-600 dark:text-muted-foreground max-w-3xl mx-auto px-2">
@@ -162,7 +163,7 @@ export default function Home() {
       {/* Main Content Tabs */}
       <div className="max-w-6xl mx-auto px-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6 md:mb-8 bg-white dark:bg-card border border-finpay-gray-200 dark:border-border rounded-xl p-1 shadow-md h-12 md:h-14">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6 md:mb-8 bg-white dark:bg-card border border-finpay-gray-200 dark:border-border rounded-xl p-1 shadow-md h-auto md:h-14">
             <TabsTrigger
               value="generator"
               className="flex items-center justify-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-finpay-teal-500 data-[state=active]:to-finpay-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs sm:text-sm md:text-base h-full px-2 md:px-4"
@@ -185,7 +186,15 @@ export default function Home() {
             >
               <BookOpen className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
               <span className="hidden sm:inline font-medium text-center">Saved Recipes</span>
-              <span className="sm:hidden font-medium text-center">Saved</span>
+              <span className="sm:hidden font-medium text-center">Recipes</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="saved-meals"
+              className="flex items-center justify-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-finpay-teal-500 data-[state=active]:to-finpay-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs sm:text-sm md:text-base h-full px-2 md:px-4"
+            >
+              <Calendar className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
+              <span className="hidden sm:inline font-medium text-center">Saved Meal Plans</span>
+              <span className="sm:hidden font-medium text-center">Meal Plans</span>
             </TabsTrigger>
           </TabsList>
 
@@ -276,6 +285,11 @@ export default function Home() {
           {/* Saved Recipes Tab */}
           <TabsContent value="saved" className="space-y-6 md:space-y-8">
             <SavedRecipesClient refreshTrigger={refreshSavedRecipes} />
+          </TabsContent>
+
+          {/* Saved Meal Plans Tab */}
+          <TabsContent value="saved-meals" className="space-y-6 md:space-y-8">
+            <SavedDailyMealPlans />
           </TabsContent>
         </Tabs>
       </div>
