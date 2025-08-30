@@ -33,7 +33,7 @@ export default function Home() {
       ...data,
       images: data.images ? `${data.images.length} images` : 'no images'
     });
-    
+
     setIsLoading(true);
     setError(null);
     setRecipe(null);
@@ -95,7 +95,7 @@ export default function Home() {
       const savedRecipes = JSON.parse(
         localStorage.getItem("saved_recipes_snap") || "[]"
       );
-      
+
       // Check if recipe already exists
       const existingRecipe = savedRecipes.find((r: any) => r.recipeName === recipe.recipeName);
       if (existingRecipe) {
@@ -106,14 +106,14 @@ export default function Home() {
         });
         return;
       }
-      
+
       const recipeWithId = { ...recipe, id: Date.now().toString() };
       savedRecipes.push(recipeWithId);
       localStorage.setItem("saved_recipes_snap", JSON.stringify(savedRecipes));
-      
+
       // Trigger refresh of saved recipes
       setRefreshSavedRecipes(prev => prev + 1);
-      
+
       toast({
         title: "Recipe Saved!",
         description: `"${recipe.recipeName}" has been added to your saved recipes.`,
@@ -126,7 +126,7 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-finpay-gray-50 via-white to-finpay-purple-50/50 dark:from-background dark:via-background dark:to-muted/20">
       {/* Welcome Section */}
       <div className="text-center py-8 md:py-12 px-4">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 finpay-gradient-text" style={{lineHeight: '1.1', paddingBottom: '0.05em'}}>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 finpay-gradient-text" style={{ lineHeight: '1.1', paddingBottom: '0.05em' }}>
           Welcome to StagKitchen
         </h1>
         <p className="text-lg sm:text-xl text-finpay-gray-600 dark:text-muted-foreground max-w-3xl mx-auto px-2">
@@ -163,38 +163,34 @@ export default function Home() {
       {/* Main Content Tabs */}
       <div className="max-w-6xl mx-auto px-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6 md:mb-8 bg-white dark:bg-card border border-finpay-gray-200 dark:border-border rounded-xl p-1 shadow-md h-auto md:h-14">
+          <TabsList className="flex flex-col md:grid md:grid-cols-4 w-full mb-6 md:mb-8 bg-white dark:bg-card border border-finpay-gray-200 dark:border-border rounded-xl p-1 shadow-md h-auto md:h-14 gap-1 md:gap-0">
             <TabsTrigger
               value="generator"
-              className="flex items-center justify-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-finpay-teal-500 data-[state=active]:to-finpay-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs sm:text-sm md:text-base h-full px-2 md:px-4"
+              className="flex items-center justify-start md:justify-center gap-3 md:gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-finpay-teal-500 data-[state=active]:to-finpay-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-sm md:text-base h-12 md:h-full px-4 md:px-2 w-full"
             >
-              <ChefHat className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
-              <span className="hidden sm:inline font-medium text-center">Recipe Generator</span>
-              <span className="sm:hidden font-medium text-center">Recipe</span>
+              <ChefHat className="h-5 w-5 md:h-4 md:w-4 flex-shrink-0" />
+              <span className="font-medium text-left md:text-center">Recipe Generator</span>
             </TabsTrigger>
             <TabsTrigger
               value="daily-plan"
-              className="flex items-center justify-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-finpay-teal-500 data-[state=active]:to-finpay-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs sm:text-sm md:text-base h-full px-2 md:px-4"
+              className="flex items-center justify-start md:justify-center gap-3 md:gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-finpay-teal-500 data-[state=active]:to-finpay-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-sm md:text-base h-12 md:h-full px-4 md:px-2 w-full"
             >
-              <Calendar className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
-              <span className="hidden sm:inline font-medium text-center">Daily Meal Plan</span>
-              <span className="sm:hidden font-medium text-center">Daily Plan</span>
+              <Calendar className="h-5 w-5 md:h-4 md:w-4 flex-shrink-0" />
+              <span className="font-medium text-left md:text-center">Daily Meal Plan</span>
             </TabsTrigger>
             <TabsTrigger
               value="saved"
-              className="flex items-center justify-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-finpay-teal-500 data-[state=active]:to-finpay-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs sm:text-sm md:text-base h-full px-2 md:px-4"
+              className="flex items-center justify-start md:justify-center gap-3 md:gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-finpay-teal-500 data-[state=active]:to-finpay-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-sm md:text-base h-12 md:h-full px-4 md:px-2 w-full"
             >
-              <BookOpen className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
-              <span className="hidden sm:inline font-medium text-center">Saved Recipes</span>
-              <span className="sm:hidden font-medium text-center">Recipes</span>
+              <BookOpen className="h-5 w-5 md:h-4 md:w-4 flex-shrink-0" />
+              <span className="font-medium text-left md:text-center">Saved Recipes</span>
             </TabsTrigger>
             <TabsTrigger
               value="saved-meals"
-              className="flex items-center justify-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-finpay-teal-500 data-[state=active]:to-finpay-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs sm:text-sm md:text-base h-full px-2 md:px-4"
+              className="flex items-center justify-start md:justify-center gap-3 md:gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-finpay-teal-500 data-[state=active]:to-finpay-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-sm md:text-base h-12 md:h-full px-4 md:px-2 w-full"
             >
-              <Calendar className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
-              <span className="hidden sm:inline font-medium text-center">Saved Meal Plans</span>
-              <span className="sm:hidden font-medium text-center">Meal Plans</span>
+              <Calendar className="h-5 w-5 md:h-4 md:w-4 flex-shrink-0" />
+              <span className="font-medium text-left md:text-center">Saved Meal Plans</span>
             </TabsTrigger>
           </TabsList>
 
