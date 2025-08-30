@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  output: 'standalone', // For Docker deployment
 };
 
 export default nextConfig;

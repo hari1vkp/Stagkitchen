@@ -47,6 +47,7 @@ interface RecipeFormProps {
 
 export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [imageErrors, setImageErrors] = useState<string[]>([]);
   
   const form = useForm<RecipeFormValues>({
     resolver: zodResolver(formSchema),
@@ -73,14 +74,37 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
         return;
       }
 
+      // Clear previous errors
+      setImageErrors([]);
+      const errors: string[] = [];
+
       currentFilesArray.forEach(file => {
+        // Enhanced image validation
         if (!file.type.startsWith("image/")) {
-          console.warn(`File ${file.name} is not an image and will be skipped.`);
+          const error = `${file.name} is not an image file and will be skipped.`;
+          console.warn(error);
+          errors.push(error);
           processedFiles++;
           if (processedFiles === filesToProcess) {
             const allImages = [...imagePreviews, ...newPreviews];
             setImagePreviews(allImages);
             form.setValue("images", allImages, { shouldValidate: true });
+            if (errors.length > 0) setImageErrors(errors);
+          }
+          return;
+        }
+
+        // Check file size (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+          const error = `${file.name} is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum size is 10MB.`;
+          console.error(error);
+          errors.push(error);
+          processedFiles++;
+          if (processedFiles === filesToProcess) {
+            const allImages = [...imagePreviews, ...newPreviews];
+            setImagePreviews(allImages);
+            form.setValue("images", allImages, { shouldValidate: true });
+            if (errors.length > 0) setImageErrors(errors);
           }
           return;
         }
@@ -88,6 +112,20 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
         const reader = new FileReader();
         reader.onloadend = () => {
           const result = reader.result as string;
+          
+          // Validate the data URI format
+          if (!result || !result.startsWith('data:image/')) {
+            console.error(`Invalid data URI format for file: ${file.name}`);
+            processedFiles++;
+            if (processedFiles === filesToProcess) {
+              const allImages = [...imagePreviews, ...newPreviews];
+              setImagePreviews(allImages);
+              form.setValue("images", allImages, { shouldValidate: true });
+            }
+            return;
+          }
+
+          console.log(`Successfully processed image: ${file.name} (${file.type}, ${(file.size / 1024).toFixed(2)}KB)`);
           newPreviews.push(result);
           processedFiles++;
           
@@ -95,6 +133,7 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
             const allImages = [...imagePreviews, ...newPreviews];
             setImagePreviews(allImages);
             form.setValue("images", allImages, { shouldValidate: true });
+            if (errors.length > 0) setImageErrors(errors);
             
             // Set default imageType if not already set
             if (!form.getValues("imageType") && allImages.length > 0) {
@@ -102,13 +141,16 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
             }
           }
         };
-        reader.onerror = () => {
-          console.error("Error reading file:", file.name);
+        reader.onerror = (error) => {
+          const errorMsg = `Error reading file ${file.name}: ${error}`;
+          console.error(errorMsg);
+          errors.push(errorMsg);
           processedFiles++;
           if (processedFiles === filesToProcess) {
             const allImages = [...imagePreviews, ...newPreviews];
             setImagePreviews(allImages);
             form.setValue("images", allImages, { shouldValidate: true });
+            if (errors.length > 0) setImageErrors(errors);
           }
         };
         reader.readAsDataURL(file);
@@ -250,6 +292,17 @@ export default function RecipeForm({ onSubmit, isLoading }: RecipeFormProps) {
                 />
               </FormControl>
               <FormMessage />
+              
+              {imageErrors.length > 0 && (
+                <div className="mt-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                  <p className="text-sm font-medium text-red-800 dark:text-red-200 mb-1">Image Upload Issues:</p>
+                  <ul className="text-sm text-red-600 dark:text-red-300 space-y-1">
+                    {imageErrors.map((error, index) => (
+                      <li key={index}>• {error}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </FormItem>
 
             {imagePreviews.length > 0 && (

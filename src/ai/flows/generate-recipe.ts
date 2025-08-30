@@ -70,117 +70,69 @@ const generateRecipePrompt = ai.definePrompt({
   output: {schema: GenerateRecipeOutputSchema},
   prompt: `You are a world-class chef skilled at creating delicious and innovative recipes with expertise in global cuisines including Indian, Asian, European, American, and other international dishes.
 
-  Your task is to generate a recipe based on the provided information.
+Your task is to generate a recipe based on the provided information.
 
-  {{#if images}}
-    {{#if isImageFinishedDish}}
-      CRITICAL INSTRUCTION: You have been provided with an image of a FINISHED DISH. 
-      
-      MANDATORY FIRST STEP - IMAGE ANALYSIS: 
-      Look at the image and provide a detailed description including:
-      - What specific dish do you see? (be very specific - e.g., "masala dosa", "chicken biryani", "pad thai")
-      - What are the visual characteristics? (color, texture, shape, size, presentation)
-      - What cultural cuisine does this belong to? (Indian, Chinese, Italian, etc.)
-      - What cooking method was likely used? (fried, grilled, steamed, etc.)
-      - What garnishes or accompaniments do you see?
-      
-      {{{images}}}
-      
-      {{#if ingredients}}
-        User provided additional context: {{{ingredients}}}
-        Only use this if it helps clarify what you see, but the image is the primary source of truth.
-      {{/if}}
-      
-      MANDATORY SECOND STEP - RECIPE GENERATION:
-      Based ONLY on your visual analysis above, create an authentic recipe for the EXACT dish you identified in the image.
-      Do NOT generate a recipe for a different dish.
-    {{else}}
-      CRITICAL INSTRUCTION: You have been provided with images of INDIVIDUAL INGREDIENTS.
-      
-      MANDATORY FIRST STEP - INGREDIENT IDENTIFICATION:
-      Examine each image carefully and list:
-      - Each specific ingredient you can identify
-      - The state/preparation of each ingredient (whole, chopped, cooked, etc.)
-      - Approximate quantities if visible
-      
-      {{{images}}}
-      
-      {{#if ingredients}}
-        Additional ingredients mentioned: {{{ingredients}}}
-      {{/if}}
-      
-      MANDATORY SECOND STEP - RECIPE CREATION:
-      Create a recipe using the ingredients you identified from the images.
+{{#if images}}
+  {{#if isImageFinishedDish}}
+    CRITICAL INSTRUCTION: You have been provided with an image of a FINISHED DISH. 
+    
+    Look at the image carefully and identify the specific dish. Be very precise with the dish name - for example:
+    - Say "Masala Dosa with Coconut Chutney and Sambar" not just "crepe" or "pancake"
+    - Say "Chicken Tikka Masala with Basmati Rice" not just "curry"
+    - Say "Margherita Pizza with Fresh Basil" not just "pizza"
+    
+    {{{images}}}
+    
+    {{#if ingredients}}
+      User provided additional context: {{{ingredients}}}
+      Only use this if it helps clarify what you see, but the image is the primary source of truth.
     {{/if}}
+    
+    Create an authentic recipe for the EXACT dish you identified in the image.
   {{else}}
-    {{#if isTextInputFinishedDish}}
-        You have been provided with the name of a finished dish: {{{ingredients}}}. Generate an authentic recipe for this specific dish.
-    {{else}}
-        You have been provided with the following ingredients: {{{ingredients}}}. Create a recipe using these ingredients.
+    CRITICAL INSTRUCTION: You have been provided with images of INDIVIDUAL INGREDIENTS.
+    
+    Examine each image carefully and identify the specific ingredients, then create a recipe using them.
+    
+    {{{images}}}
+    
+    {{#if ingredients}}
+      Additional ingredients mentioned: {{{ingredients}}}
     {{/if}}
   {{/if}}
-
-  RECIPE CREATION GUIDELINES:
-  - Be accurate to the visual content of images (if provided)
-  - Consider cultural authenticity for international dishes
-  - Provide realistic cooking times and temperatures
-  - Include proper seasoning and technique details
-  - Consider any dietary preferences: {{{dietaryPreferences}}}
-
-  Also, provide estimated nutritional information for the generated recipe.
-  Finally, create a YouTube search query for a video showing how to cook this specific dish, and format it as a search URL (e.g., https://www.youtube.com/results?search_query=how+to+make+...).
-
-  Format the response as follows:
-
-  {{#if images}}
-  Image Analysis: [Detailed description of what you see in the image - this is MANDATORY if images are provided]
-  {{/if}}
-  Recipe Name: [Recipe Name - must match what's actually in the image if image provided]
-  Ingredients: [List of ingredients with quantities]
-  Instructions: [Step-by-step cooking instructions]
-  Nutritional Info: [e.g., Calories: 350, Protein: 20g, Carbs: 30g, Fat: 15g]
-  YouTube Link: [Search URL]
-
-  Please respond with ONLY the recipe details. Do not generate an image.`,
-});
-
-// First, create a separate image analysis prompt for better accuracy
-const imageAnalysisPrompt = ai.definePrompt({
-  name: 'imageAnalysisPrompt',
-  input: {
-    schema: z.object({
-      images: z.array(z.any()),
-      imageType: z.enum(['ingredients', 'finishedDish']).optional(),
-    })
-  },
-  output: {
-    schema: z.object({
-      analysis: z.string().describe('Detailed analysis of what is seen in the image'),
-      dishName: z.string().optional().describe('The specific name of the dish if it can be identified'),
-    })
-  },
-  prompt: `You are an expert food analyst. Look at the provided image(s) very carefully.
-
-{{#if imageType}}
-  {{#if (eq imageType "finishedDish")}}
-    This image shows a FINISHED DISH. Analyze it and provide:
-    1. EXACT dish identification (be very specific - e.g., "masala dosa with coconut chutney", "chicken tikka masala", "pad thai with shrimp")
-    2. Visual characteristics (colors, textures, presentation, garnishes)
-    3. Cultural/regional cuisine type
-    4. Cooking method apparent from appearance
-    5. Any accompaniments or sides visible
+{{else}}
+  {{#if isTextInputFinishedDish}}
+      You have been provided with the name of a finished dish: {{{ingredients}}}. Generate an authentic recipe for this specific dish.
   {{else}}
-    This image shows INDIVIDUAL INGREDIENTS. Analyze it and provide:
-    1. List each ingredient you can identify
-    2. State of preparation (whole, chopped, cooked, etc.)
-    3. Approximate quantities if visible
+      You have been provided with the following ingredients: {{{ingredients}}}. Create a recipe using these ingredients.
   {{/if}}
 {{/if}}
 
-{{{images}}}
+RECIPE CREATION GUIDELINES:
+- Be accurate to the visual content of images (if provided)
+- Consider cultural authenticity for international dishes
+- Provide realistic cooking times and temperatures
+- Include proper seasoning and technique details
+- Consider any dietary preferences: {{{dietaryPreferences}}}
 
-Be extremely specific and accurate in your identification. If you see a masala dosa, say "masala dosa" not "crepe" or "pancake".`
+Also, provide estimated nutritional information for the generated recipe.
+Finally, create a YouTube search query for a video showing how to cook this specific dish, and format it as a search URL.
+
+Format the response as follows:
+
+{{#if images}}
+Image Analysis: [Detailed description of what you see in the image - be very specific about the dish identification]
+{{/if}}
+Recipe Name: [Recipe Name - must match what's actually in the image if image provided]
+Ingredients: [List of ingredients with quantities]
+Instructions: [Step-by-step cooking instructions]
+Nutritional Info: [e.g., Calories: 350, Protein: 20g, Carbs: 30g, Fat: 15g]
+YouTube Link: [Search URL]
+
+Please respond with ONLY the recipe details.`,
 });
+
+
 
 const generateRecipeFlow = ai.defineFlow(
   {
@@ -190,7 +142,6 @@ const generateRecipeFlow = ai.defineFlow(
   },
   async input => {
     const promptParts: any[] = [];
-    let imageAnalysisResult: any = null;
     
     if (input.images && input.images.length > 0) {
       console.log(`Processing ${input.images.length} images for recipe generation`);
@@ -225,32 +176,10 @@ const generateRecipeFlow = ai.defineFlow(
         }
       });
       console.log(`Successfully processed ${promptParts.length} out of ${input.images.length} images`);
-
-      // First, analyze the image separately for better accuracy
-      if (promptParts.length > 0) {
-        try {
-          const analysisResult = await imageAnalysisPrompt({
-            images: promptParts,
-            imageType: input.imageType
-          });
-          imageAnalysisResult = analysisResult.output;
-          console.log('Image analysis result:', imageAnalysisResult);
-        } catch (error) {
-          console.error('Error in image analysis:', error);
-        }
-      }
     }
 
-    // Log the processing details for debugging
-    console.log('Recipe generation input:', {
-      hasImages: !!input.images && input.images.length > 0,
-      imageCount: input.images?.length || 0,
-      imageType: input.imageType,
-      inputType: input.inputType,
-      processedImageParts: promptParts.length,
-      imageAnalysis: imageAnalysisResult?.analysis || 'No analysis'
-    });
-
+    // Use the enhanced prompt for better accuracy
+    // Use the original working approach with better prompt
     const recipePromise = generateRecipePrompt({
       ...input,
       isImageFinishedDish: input.imageType === 'finishedDish',
@@ -259,17 +188,16 @@ const generateRecipeFlow = ai.defineFlow(
       images: promptParts.length > 0 ? promptParts : undefined,
     }, {
       config: {
-        temperature: 0.1, // Lower temperature for more consistent image analysis
-        topP: 0.8,
-        topK: 20
+        temperature: 0.0,
+        topP: 0.95,
+        topK: 40,
+        maxOutputTokens: 2048
       }
     });
 
-    // We get the recipe name first to generate a better image prompt.
-    // This adds a small delay but results in a better image.
     const tempRecipe = await recipePromise;
     if (!tempRecipe.output) {
-      throw new Error('Failed to start recipe generation');
+      throw new Error('Failed to generate recipe');
     }
 
     const imagePromise = ai.generate({
@@ -280,7 +208,6 @@ const generateRecipeFlow = ai.defineFlow(
         },
       });
 
-    // Now we wait for both to complete
     const [{output: recipe}, {media}] = await Promise.all([
         recipePromise,
         imagePromise
@@ -291,8 +218,8 @@ const generateRecipeFlow = ai.defineFlow(
     }
 
     return {
-      imageAnalysis: imageAnalysisResult?.analysis || undefined,
-      recipeName: imageAnalysisResult?.dishName || recipe.recipeName,
+      imageAnalysis: recipe.imageAnalysis,
+      recipeName: recipe.recipeName,
       ingredients: recipe.ingredients,
       instructions: recipe.instructions,
       nutritionalInfo: recipe.nutritionalInfo,

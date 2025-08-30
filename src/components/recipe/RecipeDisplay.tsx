@@ -100,13 +100,20 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
       <CardContent className="p-4 md:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
         {recipe.imageAnalysis && (
           <div className="lg:col-span-2 finpay-card p-4 md:p-6 bg-gradient-to-r from-finpay-yellow-50/50 to-finpay-orange-50/50 dark:from-muted/30 dark:to-muted/20 border-finpay-yellow-200/30 dark:border-border">
-            <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 flex items-center gap-2 md:gap-3 text-finpay-orange-600 dark:text-finpay-orange-400">
-              <div className="bg-finpay-orange-100 dark:bg-finpay-orange-900/20 p-1.5 md:p-2 rounded-lg">
-                <Info size={20} className="text-finpay-orange-600 dark:text-finpay-orange-400 md:w-6 md:h-6" />
-              </div>
-              AI Image Analysis
-            </h3>
-            <p className="text-sm md:text-base text-finpay-gray-700 dark:text-foreground leading-relaxed">{recipe.imageAnalysis}</p>
+            <div className="flex items-center justify-between mb-3 md:mb-4">
+              <h3 className="text-lg md:text-xl font-semibold flex items-center gap-2 md:gap-3 text-finpay-orange-600 dark:text-finpay-orange-400">
+                <div className="bg-finpay-orange-100 dark:bg-finpay-orange-900/20 p-1.5 md:p-2 rounded-lg">
+                  <Info size={20} className="text-finpay-orange-600 dark:text-finpay-orange-400 md:w-6 md:h-6" />
+                </div>
+                AI Image Analysis
+              </h3>
+              {recipe.imageAnalysis.includes('CONFIDENCE WARNING') && (
+                <div className="bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded-md text-xs font-medium">
+                  ⚠️ Low Confidence
+                </div>
+              )}
+            </div>
+            <p className="text-sm md:text-base text-finpay-gray-700 dark:text-foreground leading-relaxed whitespace-pre-line">{recipe.imageAnalysis}</p>
           </div>
         )}
         
