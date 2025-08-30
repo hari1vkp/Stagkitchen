@@ -229,64 +229,68 @@ export default function ShoppingList({ ingredients, recipeName }: ShoppingListPr
   }
   
   return (
-    <Card className="finpay-card finpay-card-hover">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-xl font-bold text-finpay-gray-900 dark:text-foreground flex items-center gap-2">
+    <Card className="finpay-card finpay-card-hover border-finpay-green-200/30 dark:border-border">
+      <CardHeader className="pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <CardTitle className="text-lg md:text-xl font-bold text-finpay-gray-900 dark:text-foreground flex items-center gap-2">
             <div className="bg-finpay-green-100 dark:bg-finpay-green-900/20 p-2 rounded-lg">
               <ShoppingCart className="h-5 w-5 text-finpay-green-600 dark:text-finpay-green-400" />
             </div>
-            Shopping List
-            <Badge variant="secondary" className="ml-2">
-              {checkedCount}/{totalCount} items
+            <span className="text-base sm:text-lg md:text-xl">Shopping List</span>
+            <Badge variant="secondary" className="text-xs">
+              {checkedCount}/{totalCount}
             </Badge>
           </CardTitle>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowChecked(!showChecked)}
-              className="text-xs"
+              className="text-xs w-full sm:w-auto"
             >
-              {showChecked ? <Minus className="h-4 w-4 mr-1" /> : <Plus className="h-4 w-4 mr-1" />}
-              {showChecked ? 'Hide' : 'Show'} Checked
+              {showChecked ? <Minus className="h-3 w-3 mr-1" /> : <Plus className="h-3 w-3 mr-1" />}
+              <span className="hidden sm:inline">{showChecked ? 'Hide' : 'Show'} Checked</span>
+              <span className="sm:hidden">{showChecked ? 'Hide' : 'Show'}</span>
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePrint}
-              className="text-xs"
-            >
-              <Printer className="h-4 w-4 mr-1" />
-              Print
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={saveShoppingList}
-              className="text-xs"
-            >
-              Save List
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePrint}
+                className="text-xs flex-1 sm:flex-none"
+              >
+                <Printer className="h-3 w-3 mr-1" />
+                <span className="hidden sm:inline">Print</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={saveShoppingList}
+                className="text-xs flex-1 sm:flex-none"
+              >
+                <span className="hidden sm:inline">Save List</span>
+                <span className="sm:hidden">Save</span>
+              </Button>
+            </div>
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
+      <CardContent className="pt-0">
+        <div className="space-y-4 md:space-y-6">
           {Object.entries(groupedItems).map(([category, items]) => {
             const visibleItems = showChecked ? items : items.filter(item => !item.checked);
             if (visibleItems.length === 0) return null;
             
             return (
               <div key={category}>
-                <h3 className="font-semibold text-finpay-gray-800 dark:text-foreground mb-3 flex items-center gap-2">
-                  <div className="w-3 h-3 bg-finpay-teal-500 rounded-full"></div>
-                  {category}
+                <h3 className="font-semibold text-finpay-gray-800 dark:text-foreground mb-3 flex items-center gap-2 text-sm md:text-base">
+                  <div className="w-2 h-2 md:w-3 md:h-3 bg-finpay-teal-500 rounded-full flex-shrink-0"></div>
+                  <span className="flex-1">{category}</span>
                   <Badge variant="outline" className="text-xs">
                     {items.filter(item => !item.checked).length} needed
                   </Badge>
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2">
                   {visibleItems.map((item) => (
                     <div
                       key={item.id}
@@ -300,11 +304,11 @@ export default function ShoppingList({ ingredients, recipeName }: ShoppingListPr
                         id={item.id}
                         checked={item.checked}
                         onCheckedChange={() => toggleItem(item.id)}
-                        className="data-[state=checked]:bg-finpay-green-600 data-[state=checked]:border-finpay-green-600"
+                        className="data-[state=checked]:bg-finpay-green-600 data-[state=checked]:border-finpay-green-600 flex-shrink-0"
                       />
                       <label
                         htmlFor={item.id}
-                        className={`flex-1 text-sm cursor-pointer ${
+                        className={`flex-1 text-sm md:text-base cursor-pointer break-words ${
                           item.checked
                             ? 'line-through text-finpay-gray-500 dark:text-muted-foreground'
                             : 'text-finpay-gray-700 dark:text-foreground'
@@ -313,7 +317,7 @@ export default function ShoppingList({ ingredients, recipeName }: ShoppingListPr
                         {item.name}
                       </label>
                       {item.checked && (
-                        <Check className="h-4 w-4 text-finpay-green-600" />
+                        <Check className="h-4 w-4 text-finpay-green-600 flex-shrink-0" />
                       )}
                     </div>
                   ))}
@@ -324,10 +328,10 @@ export default function ShoppingList({ ingredients, recipeName }: ShoppingListPr
         </div>
         
         {checkedCount > 0 && (
-          <div className="mt-6 p-4 bg-finpay-green-50 dark:bg-finpay-green-900/10 rounded-lg border border-finpay-green-200 dark:border-finpay-green-800">
+          <div className="mt-4 md:mt-6 p-3 md:p-4 bg-finpay-green-50 dark:bg-finpay-green-900/10 rounded-lg border border-finpay-green-200 dark:border-finpay-green-800">
             <div className="flex items-center gap-2 text-finpay-green-700 dark:text-finpay-green-300">
-              <Check className="h-5 w-5" />
-              <span className="font-medium">
+              <Check className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
+              <span className="font-medium text-sm md:text-base">
                 Great! You have {checkedCount} out of {totalCount} ingredients ready.
               </span>
             </div>

@@ -28,6 +28,7 @@ const formSchema = z.object({
   ingredients: z.string().min(1, "Please provide at least one ingredient."),
   targetCalories: z.number().min(800).max(5000),
   dietaryPreferences: z.string().optional(),
+  fitnessGoal: z.string().optional(),
   mealCount: z.number().min(3).max(6),
   images: z.array(z.string()).optional(),
 }).refine(data => {
@@ -73,6 +74,7 @@ export default function DailyMealPlanForm({ onSubmit, isLoading }: DailyMealPlan
       ingredients: "",
       targetCalories: 2000,
       dietaryPreferences: "",
+      fitnessGoal: "none",
       mealCount: 4,
       images: [],
     },
@@ -257,26 +259,51 @@ export default function DailyMealPlanForm({ onSubmit, isLoading }: DailyMealPlan
                                 className="finpay-input text-sm"
                               />
                               <Select value={calculatorForm.sex} onValueChange={(value) => setCalculatorForm({...calculatorForm, sex: value})}>
-                                <SelectTrigger className="finpay-input text-sm">
+                                <SelectTrigger className="finpay-input text-sm h-10">
                                   <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="male">Male</SelectItem>
-                                  <SelectItem value="female">Female</SelectItem>
+                                <SelectContent className="w-full min-w-[var(--radix-select-trigger-width)]">
+                                  <SelectItem value="male" className="text-sm py-2 pl-8 pr-3 cursor-pointer">Male</SelectItem>
+                                  <SelectItem value="female" className="text-sm py-2 pl-8 pr-3 cursor-pointer">Female</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
                             
                             <Select value={calculatorForm.activityLevel} onValueChange={(value) => setCalculatorForm({...calculatorForm, activityLevel: value})}>
-                              <SelectTrigger className="finpay-input text-sm">
+                              <SelectTrigger className="finpay-input text-sm h-10">
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="sedentary">Sedentary (Little/no exercise)</SelectItem>
-                                <SelectItem value="light">Light (1-3 days/week)</SelectItem>
-                                <SelectItem value="moderate">Moderate (3-5 days/week)</SelectItem>
-                                <SelectItem value="active">Active (6-7 days/week)</SelectItem>
-                                <SelectItem value="very-active">Very Active (Physical job)</SelectItem>
+                              <SelectContent className="max-h-[250px] w-full min-w-[var(--radix-select-trigger-width)]">
+                                <SelectItem value="sedentary" className="text-sm py-2 pl-8 pr-3 cursor-pointer">
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">Sedentary</span>
+                                    <span className="text-xs text-muted-foreground">Little/no exercise</span>
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="light" className="text-sm py-2 pl-8 pr-3 cursor-pointer">
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">Light</span>
+                                    <span className="text-xs text-muted-foreground">1-3 days/week</span>
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="moderate" className="text-sm py-2 pl-8 pr-3 cursor-pointer">
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">Moderate</span>
+                                    <span className="text-xs text-muted-foreground">3-5 days/week</span>
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="active" className="text-sm py-2 pl-8 pr-3 cursor-pointer">
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">Active</span>
+                                    <span className="text-xs text-muted-foreground">6-7 days/week</span>
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="very-active" className="text-sm py-2 pl-8 pr-3 cursor-pointer">
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">Very Active</span>
+                                    <span className="text-xs text-muted-foreground">Physical job</span>
+                                  </div>
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                             
@@ -321,14 +348,34 @@ export default function DailyMealPlanForm({ onSubmit, isLoading }: DailyMealPlan
                     </FormLabel>
                     <FormControl>
                       <Select onValueChange={(value) => field.onChange(Number(value))} defaultValue={field.value.toString()}>
-                        <SelectTrigger className="finpay-input">
+                        <SelectTrigger className="finpay-input h-12 text-sm md:text-base">
                           <SelectValue placeholder="Select meal count" />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="3">3 meals (Breakfast, Lunch, Dinner)</SelectItem>
-                          <SelectItem value="4">4 meals (Breakfast, Lunch, Dinner, Snack)</SelectItem>
-                          <SelectItem value="5">5 meals (Breakfast, Snack, Lunch, Snack, Dinner)</SelectItem>
-                          <SelectItem value="6">6 meals (Breakfast, Snack, Lunch, Snack, Dinner, Snack)</SelectItem>
+                        <SelectContent className="max-h-[300px] w-full min-w-[var(--radix-select-trigger-width)]">
+                          <SelectItem value="3" className="text-sm md:text-base py-3 pl-8 pr-4 cursor-pointer">
+                            <div className="flex flex-col">
+                              <span className="font-medium">3 meals</span>
+                              <span className="text-xs text-muted-foreground">Breakfast, Lunch, Dinner</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="4" className="text-sm md:text-base py-3 pl-8 pr-4 cursor-pointer">
+                            <div className="flex flex-col">
+                              <span className="font-medium">4 meals</span>
+                              <span className="text-xs text-muted-foreground">Breakfast, Lunch, Dinner, Snack</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="5" className="text-sm md:text-base py-3 pl-8 pr-4 cursor-pointer">
+                            <div className="flex flex-col">
+                              <span className="font-medium">5 meals</span>
+                              <span className="text-xs text-muted-foreground">Breakfast, Snack, Lunch, Snack, Dinner</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="6" className="text-sm md:text-base py-3 pl-8 pr-4 cursor-pointer">
+                            <div className="flex flex-col">
+                              <span className="font-medium">6 meals</span>
+                              <span className="text-xs text-muted-foreground">Breakfast, Snack, Lunch, Snack, Dinner, Snack</span>
+                            </div>
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -351,7 +398,7 @@ export default function DailyMealPlanForm({ onSubmit, isLoading }: DailyMealPlan
                   </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="e.g., chicken breast, broccoli, rice, eggs, spinach, tomatoes, olive oil, garlic, onions"
+                      placeholder="e.g., chicken, rice, vegetables..."
                       className="finpay-textarea min-h-[120px]"
                       {...field}
                       aria-label="Available ingredients"
@@ -365,29 +412,84 @@ export default function DailyMealPlanForm({ onSubmit, isLoading }: DailyMealPlan
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="dietaryPreferences"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-lg font-semibold text-finpay-gray-900 dark:text-foreground">
-                    Dietary Preferences (Optional)
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="e.g., vegetarian, gluten-free, low-carb, dairy-free"
-                      className="finpay-textarea min-h-[100px]"
-                      {...field}
-                      aria-label="Dietary preferences"
-                    />
-                  </FormControl>
-                  <FormDescription className="text-finpay-gray-600 dark:text-muted-foreground">
-                    Any dietary restrictions or preferences we should consider.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <FormField
+                control={form.control}
+                name="dietaryPreferences"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-lg font-semibold text-finpay-gray-900 dark:text-foreground">
+                      Dietary Preferences (Optional)
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="e.g., vegetarian, gluten-free..."
+                        className="finpay-textarea min-h-[100px]"
+                        {...field}
+                        aria-label="Dietary preferences"
+                      />
+                    </FormControl>
+                    <FormDescription className="text-finpay-gray-600 dark:text-muted-foreground">
+                      Any dietary restrictions or preferences we should consider.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="fitnessGoal"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-lg font-semibold text-finpay-gray-900 dark:text-foreground flex items-center gap-2">
+                      <Target className="h-5 w-5" />
+                      Fitness Goal (Optional)
+                    </FormLabel>
+                    <FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger className="finpay-input h-12 text-sm md:text-base">
+                          <SelectValue placeholder="Select your fitness goal" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px] w-full min-w-[var(--radix-select-trigger-width)]">
+                          <SelectItem value="none" className="text-sm md:text-base py-3 pl-8 pr-4 cursor-pointer">
+                            <span className="font-medium">No specific goal</span>
+                          </SelectItem>
+                          <SelectItem value="bulking" className="text-sm md:text-base py-3 pl-8 pr-4 cursor-pointer">
+                            <div className="flex flex-col">
+                              <span className="font-medium">Bulking</span>
+                              <span className="text-xs text-muted-foreground">Build muscle mass & gain weight</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="cutting" className="text-sm md:text-base py-3 pl-8 pr-4 cursor-pointer">
+                            <div className="flex flex-col">
+                              <span className="font-medium">Cutting</span>
+                              <span className="text-xs text-muted-foreground">Lose fat while preserving muscle</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="recomposition" className="text-sm md:text-base py-3 pl-8 pr-4 cursor-pointer">
+                            <div className="flex flex-col">
+                              <span className="font-medium">Body Recomposition</span>
+                              <span className="text-xs text-muted-foreground">Build muscle & lose fat simultaneously</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="maintenance" className="text-sm md:text-base py-3 pl-8 pr-4 cursor-pointer">
+                            <div className="flex flex-col">
+                              <span className="font-medium">Maintenance</span>
+                              <span className="text-xs text-muted-foreground">Maintain current weight & fitness</span>
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormDescription className="text-finpay-gray-600 dark:text-muted-foreground">
+                      Your fitness goal helps us optimize macro ratios and meal timing.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             
             <FormItem>
               <FormLabel className="text-lg font-semibold text-finpay-gray-900 dark:text-foreground">Upload Ingredient Photos (Optional)</FormLabel>

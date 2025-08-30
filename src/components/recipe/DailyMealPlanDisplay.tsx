@@ -1,10 +1,11 @@
 "use client";
 
-import { Clock, Target, ShoppingCart, Lightbulb, ChefHat, Timer, Save, Printer } from 'lucide-react';
+import { useState } from 'react';
+import { Clock, Target, ShoppingCart, Lightbulb, ChefHat, Timer, Save, Printer, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useToast } from '@/hooks/use-toast';
 import type { DailyMealPlanOutput } from '@/ai/flows/generate-daily-meal-plan';
 
@@ -33,6 +34,18 @@ const getDifficultyColor = (difficulty: string) => {
 
 export default function DailyMealPlanDisplay({ mealPlan }: DailyMealPlanDisplayProps) {
   const { toast } = useToast();
+  const [openSections, setOpenSections] = useState({
+    meals: false,
+    shopping: false,
+    tips: false,
+  });
+
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   const handleSaveMealPlan = () => {
     const savedMealPlans = JSON.parse(localStorage.getItem('saved_meal_plans') || '[]');
@@ -313,93 +326,180 @@ export default function DailyMealPlanDisplay({ mealPlan }: DailyMealPlanDisplayP
         </Button>
       </div>
 
-      {/* Meals */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-center finpay-gradient-text">Your Daily Meals</h2>
-        {mealPlan.meals.map((meal, index) => (
-          <Card key={index} className="finpay-card finpay-card-hover hover-lift">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-xl font-bold text-finpay-gray-900 dark:text-foreground">{meal.name}</h3>
-                    <Badge className={getMealTypeColor(meal.type)}>
-                      {meal.type.charAt(0).toUpperCase() + meal.type.slice(1)}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-finpay-gray-600 dark:text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Target className="h-4 w-4" />
-                      {meal.calories} cal
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Timer className="h-4 w-4" />
-                      {meal.prepTime + meal.cookTime} min
-                    </div>
-                    <Badge className={getDifficultyColor(meal.difficulty)}>
-                      {meal.difficulty.charAt(0).toUpperCase() + meal.difficulty.slice(1)}
-                    </Badge>
-                  </div>
+      {/* Collapsible Sections */}
+      <div className="space-y-4">
+        {/* Meals Section */}
+        <Collapsible open={openSections.meals} onOpenChange={() => toggleSection('meals')}>
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-between p-4 h-auto text-left finpay-card-hover border-finpay-blue-200/50 dark:border-border hover:bg-finpay-blue-50/50 dark:hover:bg-muted/60"
+            >
+              <div className="flex items-center gap-3">
+                <div className="bg-finpay-blue-100 dark:bg-finpay-blue-900/20 p-2 rounded-lg">
+                  <ChefHat size={20} className="text-finpay-blue-600 dark:text-finpay-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-finpay-blue-600 dark:text-finpay-blue-400">
+                    Daily Meals
+                  </h3>
+                  <p className="text-sm text-finpay-gray-600 dark:text-muted-foreground">
+                    {mealPlan.meals.length} meals planned
+                  </p>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h4 className="font-semibold text-finpay-gray-900 dark:text-foreground mb-2">Ingredients:</h4>
-                <p className="text-finpay-gray-700 dark:text-foreground/80">{meal.ingredients}</p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-finpay-gray-900 dark:text-foreground mb-2">Instructions:</h4>
-                <p className="text-finpay-gray-700 dark:text-foreground/80">{meal.instructions}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              {openSections.meals ? (
+                <ChevronUp className="h-5 w-5 text-finpay-blue-600 dark:text-finpay-blue-400" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-finpay-blue-600 dark:text-finpay-blue-400" />
+              )}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2">
+            <div className="space-y-4">
+              {mealPlan.meals.map((meal, index) => (
+                <Card key={index} className="finpay-card finpay-card-hover">
+                  <CardHeader className="pb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <h3 className="text-lg font-bold text-finpay-gray-900 dark:text-foreground">{meal.name}</h3>
+                          <Badge className={getMealTypeColor(meal.type)}>
+                            {meal.type.charAt(0).toUpperCase() + meal.type.slice(1)}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-finpay-gray-600 dark:text-muted-foreground flex-wrap">
+                          <div className="flex items-center gap-1">
+                            <Target className="h-4 w-4" />
+                            {meal.calories} cal
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Timer className="h-4 w-4" />
+                            {meal.prepTime + meal.cookTime} min
+                          </div>
+                          <Badge className={getDifficultyColor(meal.difficulty)}>
+                            {meal.difficulty.charAt(0).toUpperCase() + meal.difficulty.slice(1)}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4 pt-0">
+                    <div>
+                      <h4 className="font-semibold text-finpay-gray-900 dark:text-foreground mb-2 flex items-center gap-2">
+                        <div className="w-2 h-2 bg-finpay-blue-500 rounded-full"></div>
+                        Ingredients:
+                      </h4>
+                      <p className="text-sm md:text-base text-finpay-gray-700 dark:text-foreground/80 bg-finpay-blue-50/50 dark:bg-muted/40 p-3 rounded-lg border border-finpay-blue-200/30 dark:border-border">
+                        {meal.ingredients}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-finpay-gray-900 dark:text-foreground mb-2 flex items-center gap-2">
+                        <div className="w-2 h-2 bg-finpay-purple-500 rounded-full"></div>
+                        Instructions:
+                      </h4>
+                      <p className="text-sm md:text-base text-finpay-gray-700 dark:text-foreground/80 bg-finpay-purple-50/50 dark:bg-muted/40 p-3 rounded-lg border border-finpay-purple-200/30 dark:border-border">
+                        {meal.instructions}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Shopping List Section */}
+        {mealPlan.shoppingList.length > 0 && (
+          <Collapsible open={openSections.shopping} onOpenChange={() => toggleSection('shopping')}>
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between p-4 h-auto text-left finpay-card-hover border-finpay-green-200/50 dark:border-border hover:bg-finpay-green-50/50 dark:hover:bg-muted/60"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="bg-finpay-green-100 dark:bg-finpay-green-900/20 p-2 rounded-lg">
+                    <ShoppingCart size={20} className="text-finpay-green-600 dark:text-finpay-green-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-finpay-green-600 dark:text-finpay-green-400">
+                      Shopping List
+                    </h3>
+                    <p className="text-sm text-finpay-gray-600 dark:text-muted-foreground">
+                      {mealPlan.shoppingList.length} items needed
+                    </p>
+                  </div>
+                </div>
+                {openSections.shopping ? (
+                  <ChevronUp className="h-5 w-5 text-finpay-green-600 dark:text-finpay-green-400" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-finpay-green-600 dark:text-finpay-green-400" />
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2">
+              <Card className="finpay-card border-finpay-green-200/30 dark:border-border">
+                <CardContent className="p-4 md:p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {mealPlan.shoppingList.map((item, index) => (
+                      <div key={index} className="flex items-center gap-2 text-sm md:text-base text-finpay-gray-700 dark:text-foreground/80 bg-finpay-green-50/50 dark:bg-muted/40 p-2 md:p-3 rounded-lg border border-finpay-green-200/30 dark:border-border">
+                        <div className="w-2 h-2 bg-finpay-green-500 rounded-full flex-shrink-0"></div>
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </CollapsibleContent>
+          </Collapsible>
+        )}
+
+        {/* Tips Section */}
+        {mealPlan.tips.length > 0 && (
+          <Collapsible open={openSections.tips} onOpenChange={() => toggleSection('tips')}>
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between p-4 h-auto text-left finpay-card-hover border-finpay-yellow-200/50 dark:border-border hover:bg-finpay-yellow-50/50 dark:hover:bg-muted/60"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="bg-finpay-yellow-100 dark:bg-finpay-yellow-900/20 p-2 rounded-lg">
+                    <Lightbulb size={20} className="text-finpay-yellow-600 dark:text-finpay-yellow-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-finpay-yellow-600 dark:text-finpay-yellow-400">
+                      Meal Prep Tips
+                    </h3>
+                    <p className="text-sm text-finpay-gray-600 dark:text-muted-foreground">
+                      {mealPlan.tips.length} helpful tips
+                    </p>
+                  </div>
+                </div>
+                {openSections.tips ? (
+                  <ChevronUp className="h-5 w-5 text-finpay-yellow-600 dark:text-finpay-yellow-400" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-finpay-yellow-600 dark:text-finpay-yellow-400" />
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2">
+              <Card className="finpay-card border-finpay-yellow-200/30 dark:border-border">
+                <CardContent className="p-4 md:p-6">
+                  <div className="space-y-3">
+                    {mealPlan.tips.map((tip, index) => (
+                      <div key={index} className="flex items-start gap-3 text-sm md:text-base text-finpay-gray-700 dark:text-foreground/80 bg-finpay-yellow-50/50 dark:bg-muted/40 p-3 rounded-lg border border-finpay-yellow-200/30 dark:border-border">
+                        <div className="w-2 h-2 bg-finpay-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <p>{tip}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </CollapsibleContent>
+          </Collapsible>
+        )}
       </div>
-
-      {/* Shopping List */}
-      {mealPlan.shoppingList.length > 0 && (
-        <Card className="finpay-card finpay-card-hover">
-          <CardHeader>
-            <CardTitle className="text-xl font-bold text-finpay-gray-900 dark:text-foreground flex items-center gap-2">
-              <ShoppingCart className="h-5 w-5" />
-              Shopping List
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {mealPlan.shoppingList.map((item, index) => (
-                <div key={index} className="flex items-center gap-2 text-finpay-gray-700 dark:text-foreground/80">
-                  <div className="w-2 h-2 bg-finpay-teal-500 rounded-full"></div>
-                  {item}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Tips */}
-      {mealPlan.tips.length > 0 && (
-        <Card className="finpay-card finpay-card-hover">
-          <CardHeader>
-            <CardTitle className="text-xl font-bold text-finpay-gray-900 dark:text-foreground flex items-center gap-2">
-              <Lightbulb className="h-5 w-5" />
-              Meal Prep Tips
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {mealPlan.tips.map((tip, index) => (
-                <div key={index} className="flex items-start gap-3 text-finpay-gray-700 dark:text-foreground/80">
-                  <div className="w-2 h-2 bg-finpay-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <p>{tip}</p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }

@@ -1,17 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { ChefHat, BookOpen, Calendar, Target } from "lucide-react";
+import { ChefHat, BookOpen, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import RecipeForm from "@/components/forms/RecipeForm";
 import RecipeDisplay from "@/components/recipe/RecipeDisplay";
-import NoRecipeGenerated from "@/components/recipe/NoRecipeGenerated";
 import DailyMealPlanForm from "@/components/forms/DailyMealPlanForm";
 import DailyMealPlanDisplay from "@/components/recipe/DailyMealPlanDisplay";
 import SavedRecipesClient from "@/components/recipe/SavedRecipesClient";
@@ -90,37 +88,7 @@ export default function Home() {
     }
   };
 
-  const handleSaveRecipe = () => {
-    if (recipe) {
-      const savedRecipes = JSON.parse(
-        localStorage.getItem("saved_recipes_snap") || "[]"
-      );
 
-      // Check if recipe already exists
-      const existingRecipe = savedRecipes.find((r: any) => r.recipeName === recipe.recipeName);
-      if (existingRecipe) {
-        toast({
-          title: "Recipe Already Saved",
-          description: `"${recipe.recipeName}" is already in your saved recipes.`,
-          variant: "default",
-        });
-        return;
-      }
-
-      const recipeWithId = { ...recipe, id: Date.now().toString() };
-      savedRecipes.push(recipeWithId);
-      localStorage.setItem("saved_recipes_snap", JSON.stringify(savedRecipes));
-
-      // Trigger refresh of saved recipes
-      setRefreshSavedRecipes(prev => prev + 1);
-
-      toast({
-        title: "Recipe Saved!",
-        description: `"${recipe.recipeName}" has been added to your saved recipes.`,
-        variant: "default",
-      });
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-finpay-gray-50 via-white to-finpay-purple-50/50 dark:from-background dark:via-background dark:to-muted/20">
@@ -196,10 +164,10 @@ export default function Home() {
 
           {/* Recipe Generator Tab */}
           <TabsContent value="generator" className="space-y-8">
-            {!recipe && !isLoading && !error && (
-              <RecipeForm onSubmit={handleRecipeSubmit} isLoading={isLoading} />
-            )}
+            {/* Always show the form */}
+            <RecipeForm onSubmit={handleRecipeSubmit} isLoading={isLoading} />
 
+            {/* Show loading state below form */}
             {isLoading && (
               <div className="text-center py-8 md:py-12">
                 <LoadingSpinner />
@@ -209,6 +177,7 @@ export default function Home() {
               </div>
             )}
 
+            {/* Show error below form */}
             {error && (
               <div className="text-center py-8 md:py-12 px-4">
                 <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 md:p-6 max-w-md mx-auto">
@@ -216,20 +185,42 @@ export default function Home() {
                     Error Generating Recipe
                   </p>
                   <p className="text-red-600 dark:text-red-300 mt-2 text-sm md:text-base">{error}</p>
+                  <div className="mt-4">
+                    <Button
+                      onClick={() => setError(null)}
+                      variant="outline"
+                      size="sm"
+                      className="text-red-600 border-red-300 hover:bg-red-50"
+                    >
+                      Try Again
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
 
+            {/* Show recipe results below form */}
             {recipe && (
               <div className="space-y-4 md:space-y-6">
-                <RecipeDisplay recipe={recipe} />
+                <div className="border-t border-finpay-gray-200 dark:border-border pt-6 md:pt-8">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl md:text-3xl font-bold finpay-gradient-text">
+                      Your Generated Recipe
+                    </h2>
+                    <p className="text-finpay-gray-600 dark:text-muted-foreground mt-2">
+                      Here's your AI-crafted culinary creation
+                    </p>
+                  </div>
+                  <RecipeDisplay recipe={recipe} />
+                </div>
                 <div className="text-center px-4">
                   <Button
-                    onClick={handleSaveRecipe}
-                    className="finpay-button-primary w-full sm:w-auto"
+                    onClick={() => setRecipe(null)}
+                    variant="outline"
+                    className="finpay-button-secondary w-full sm:w-auto"
                     size="lg"
                   >
-                    Save Recipe
+                    Generate New Recipe
                   </Button>
                 </div>
               </div>
@@ -238,10 +229,10 @@ export default function Home() {
 
           {/* Daily Meal Plan Tab */}
           <TabsContent value="daily-plan" className="space-y-6 md:space-y-8">
-            {!mealPlan && !isLoading && !error && (
-              <DailyMealPlanForm onSubmit={handleMealPlanSubmit} isLoading={isLoading} />
-            )}
+            {/* Always show the form */}
+            <DailyMealPlanForm onSubmit={handleMealPlanSubmit} isLoading={isLoading} />
 
+            {/* Show loading state below form */}
             {isLoading && (
               <div className="text-center py-8 md:py-12">
                 <LoadingSpinner />
@@ -251,6 +242,7 @@ export default function Home() {
               </div>
             )}
 
+            {/* Show error below form */}
             {error && (
               <div className="text-center py-8 md:py-12 px-4">
                 <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 md:p-6 max-w-md mx-auto">
@@ -258,20 +250,42 @@ export default function Home() {
                     Error Generating Meal Plan
                   </p>
                   <p className="text-red-600 dark:text-red-300 mt-2 text-sm md:text-base">{error}</p>
+                  <div className="mt-4">
+                    <Button
+                      onClick={() => setError(null)}
+                      variant="outline"
+                      size="sm"
+                      className="text-red-600 border-red-300 hover:bg-red-50"
+                    >
+                      Try Again
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
 
+            {/* Show meal plan results below form */}
             {mealPlan && (
               <div className="space-y-4 md:space-y-6">
-                <DailyMealPlanDisplay mealPlan={mealPlan} />
+                <div className="border-t border-finpay-gray-200 dark:border-border pt-6 md:pt-8">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl md:text-3xl font-bold finpay-gradient-text">
+                      Your Daily Meal Plan
+                    </h2>
+                    <p className="text-finpay-gray-600 dark:text-muted-foreground mt-2">
+                      Here's your personalized meal plan for the day
+                    </p>
+                  </div>
+                  <DailyMealPlanDisplay mealPlan={mealPlan} />
+                </div>
                 <div className="text-center px-4">
                   <Button
                     onClick={() => setMealPlan(null)}
+                    variant="outline"
                     className="finpay-button-secondary w-full sm:w-auto"
                     size="lg"
                   >
-                    Plan Another Day
+                    Generate New Plan
                   </Button>
                 </div>
               </div>

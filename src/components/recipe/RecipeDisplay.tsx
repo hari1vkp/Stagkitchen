@@ -1,11 +1,13 @@
 
 "use client";
 
+import { useState } from 'react';
 import Image from 'next/image';
-import { Save, ShoppingBasket, ListChecks, ChefHat, Info, Youtube } from 'lucide-react';
+import { Save, ShoppingBasket, ListChecks, ChefHat, Info, Youtube, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import type { Recipe, SavedRecipe } from '@/types/recipe'; // Using defined types
 import { useToast } from '@/hooks/use-toast';
 import ShoppingList from './ShoppingList';
@@ -54,9 +56,73 @@ const formatNutritionalInfo = (text?: string): string[] => {
     return text.split(',').map(item => item.trim()).filter(item => item.length > 0);
 }
 
+const parseNutritionalValues = (text?: string) => {
+  if (!text) return null;
+  
+  const nutritionData = {
+    calories: null as string | null,
+    protein: null as string | null,
+    carbs: null as string | null,
+    fat: null as string | null,
+    fiber: null as string | null,
+    other: [] as string[]
+  };
+
+  // Clean the text and handle different formats
+  const cleanText = text.replace(/\*/g, '').replace(/\s+/g, ' ').trim();
+  
+  // Try to extract calories (look for numbers followed by calories/kcal or just numbers at the start)
+  const caloriesMatch = cleanText.match(/(\d+[-–]\d+|\d+)\s*(calories?|kcal|per serving)/i);
+  if (caloriesMatch) {
+    nutritionData.calories = caloriesMatch[1];
+  }
+  
+  // Extract protein (look for "Protein:" followed by numbers and g)
+  const proteinMatch = cleanText.match(/protein:?\s*(\d+[-–]\d+g?|\d+g?)/i);
+  if (proteinMatch) {
+    nutritionData.protein = proteinMatch[1] + (proteinMatch[1].includes('g') ? '' : 'g');
+  }
+  
+  // Extract carbs/carbohydrates
+  const carbsMatch = cleanText.match(/carbohydrates?:?\s*(\d+[-–]\d+g?|\d+g?)/i);
+  if (carbsMatch) {
+    nutritionData.carbs = carbsMatch[1] + (carbsMatch[1].includes('g') ? '' : 'g');
+  }
+  
+  // Extract fat
+  const fatMatch = cleanText.match(/fat:?\s*(\d+[-–]\d+g?|\d+g?)/i);
+  if (fatMatch) {
+    nutritionData.fat = fatMatch[1] + (fatMatch[1].includes('g') ? '' : 'g');
+  }
+  
+  // Extract fiber
+  const fiberMatch = cleanText.match(/fib(er|re):?\s*(\d+[-–]\d+g?|\d+g?)/i);
+  if (fiberMatch) {
+    nutritionData.fiber = fiberMatch[2] + (fiberMatch[2].includes('g') ? '' : 'g');
+  }
+
+  // Check if we found any values
+  const hasValues = nutritionData.calories || nutritionData.protein || nutritionData.carbs || nutritionData.fat || nutritionData.fiber;
+  
+  return hasValues ? nutritionData : null;
+}
+
 
 export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
   const { toast } = useToast();
+  const [openSections, setOpenSections] = useState({
+    ingredients: false,
+    instructions: false,
+    nutrition: false,
+    shopping: false,
+  });
+
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   const handleSaveRecipe = () => {
     const savedRecipes: SavedRecipe[] = JSON.parse(localStorage.getItem('saved_recipes_snap') || '[]');
@@ -83,6 +149,7 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
   const ingredientsList = formatList(recipe.ingredients);
   const instructionsList = formatList(recipe.instructions);
   const nutritionalInfoList = formatNutritionalInfo(recipe.nutritionalInfo);
+  const nutritionalValues = parseNutritionalValues(recipe.nutritionalInfo);
 
   return (
     <Card className="finpay-card finpay-card-hover overflow-hidden">
@@ -98,9 +165,9 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="p-4 md:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
+      <CardContent className="p-4 md:p-6 space-y-4 md:space-y-6">
         {recipe.imageAnalysis && (
-          <div className="lg:col-span-2 finpay-card p-4 md:p-6 bg-gradient-to-r from-finpay-yellow-50/50 to-finpay-orange-50/50 dark:from-muted/30 dark:to-muted/20 border-finpay-yellow-200/30 dark:border-border">
+          <div className="finpay-card p-4 md:p-6 bg-gradient-to-r from-finpay-yellow-50/50 to-finpay-orange-50/50 dark:from-muted/30 dark:to-muted/20 border-finpay-yellow-200/30 dark:border-border">
             <div className="flex items-center justify-between mb-3 md:mb-4">
               <h3 className="text-lg md:text-xl font-semibold flex items-center gap-2 md:gap-3 text-finpay-orange-600 dark:text-finpay-orange-400">
                 <div className="bg-finpay-orange-100 dark:bg-finpay-orange-900/20 p-1.5 md:p-2 rounded-lg">
@@ -118,100 +185,265 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
           </div>
         )}
         
-        <div className="space-y-6 md:space-y-8 lg:order-2">
-           {recipe.photoDataUri ? (
-            <div className="relative w-full aspect-square md:aspect-[4/3] rounded-xl md:rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 self-start">
-              <Image
-                src={recipe.photoDataUri}
-                alt={recipe.recipeName || "Generated Recipe Image"}
-                fill
-                className="object-cover"
-                data-ai-hint="dish food"
-              />
-            </div>
-          ) : (
-            <div className="relative w-full aspect-square md:aspect-[4/3] rounded-xl md:rounded-2xl overflow-hidden shadow-md bg-finpay-gray-100 dark:bg-muted flex items-center justify-center">
-              <Image
-                src="https://placehold.co/400x300.png"
-                alt="Placeholder image"
-                width={400}
-                height={300}
-                className="opacity-20"
-                data-ai-hint="food plate"
-              />
-            </div>
-          )}
+        {/* Recipe Image */}
+        {recipe.photoDataUri ? (
+          <div className="relative w-full aspect-video md:aspect-[4/3] max-w-md mx-auto rounded-xl md:rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
+            <Image
+              src={recipe.photoDataUri}
+              alt={recipe.recipeName || "Generated Recipe Image"}
+              fill
+              className="object-cover"
+              data-ai-hint="dish food"
+            />
+          </div>
+        ) : (
+          <div className="relative w-full aspect-video md:aspect-[4/3] max-w-md mx-auto rounded-xl md:rounded-2xl overflow-hidden shadow-md bg-finpay-gray-100 dark:bg-muted flex items-center justify-center">
+            <Image
+              src="https://placehold.co/400x300.png"
+              alt="Placeholder image"
+              width={400}
+              height={300}
+              className="opacity-20"
+              data-ai-hint="food plate"
+            />
+          </div>
+        )}
 
-          {nutritionalInfoList.length > 0 && (
-            <div className="finpay-card p-4 md:p-6">
-              <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 flex items-center gap-2 md:gap-3 text-finpay-teal-600 dark:text-finpay-teal-400">
-                <div className="bg-finpay-teal-100 dark:bg-finpay-teal-900/20 p-1.5 md:p-2 rounded-lg">
-                  <Info size={20} className="text-finpay-teal-600 dark:text-finpay-teal-400 md:w-6 md:h-6" />
+        {/* Collapsible Sections */}
+        <div className="space-y-4">
+          {/* Ingredients Section */}
+          <Collapsible open={openSections.ingredients} onOpenChange={() => toggleSection('ingredients')}>
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between p-4 h-auto text-left finpay-card-hover border-finpay-blue-200/50 dark:border-border hover:bg-finpay-blue-50/50 dark:hover:bg-muted/60"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="bg-finpay-blue-100 dark:bg-finpay-blue-900/20 p-2 rounded-lg">
+                    <ShoppingBasket size={20} className="text-finpay-blue-600 dark:text-finpay-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-finpay-blue-600 dark:text-finpay-blue-400">
+                      Ingredients
+                    </h3>
+                    <p className="text-sm text-finpay-gray-600 dark:text-muted-foreground">
+                      {ingredientsList.length} items
+                    </p>
+                  </div>
                 </div>
-                Nutritional Info
-              </h3>
-              <ul className="space-y-2 md:space-y-3">
-                {nutritionalInfoList.map((info, index) => (
-                  <li 
-                    key={index} 
-                    className="text-sm md:text-base text-finpay-gray-700 dark:text-foreground bg-finpay-teal-50/50 dark:bg-muted/40 p-2 md:p-3 rounded-lg transition-all duration-300 ease-in-out hover:scale-105 hover:bg-finpay-teal-100/50 dark:hover:bg-muted/60 cursor-pointer border border-finpay-teal-200/30 dark:border-border"
-                  >
-                   • {info}
-                  </li>
-                ))}
-              </ul>
-            </div>
+                {openSections.ingredients ? (
+                  <ChevronUp className="h-5 w-5 text-finpay-blue-600 dark:text-finpay-blue-400" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-finpay-blue-600 dark:text-finpay-blue-400" />
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2">
+              <div className="finpay-card p-4 md:p-6 border-finpay-blue-200/30 dark:border-border">
+                {ingredientsList.length > 0 ? (
+                  <ol className="list-decimal list-inside space-y-2 md:space-y-3 text-sm md:text-base text-finpay-gray-700 dark:text-foreground pl-1 md:pl-2">
+                    {ingredientsList.map((ingredient, index) => (
+                      <li key={index} className="bg-finpay-blue-50/50 dark:bg-muted/40 p-2 md:p-3 rounded-lg transition-all duration-300 ease-in-out hover:scale-105 hover:bg-finpay-blue-100/50 dark:hover:bg-muted/60 cursor-pointer border border-finpay-blue-200/30 dark:border-border">{ingredient}</li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="text-sm md:text-base text-finpay-gray-600 dark:text-muted-foreground">No ingredients listed.</p>
+                )}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Instructions Section */}
+          <Collapsible open={openSections.instructions} onOpenChange={() => toggleSection('instructions')}>
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between p-4 h-auto text-left finpay-card-hover border-finpay-purple-200/50 dark:border-border hover:bg-finpay-purple-50/50 dark:hover:bg-muted/60"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="bg-finpay-purple-100 dark:bg-finpay-purple-900/20 p-2 rounded-lg">
+                    <ListChecks size={20} className="text-finpay-purple-600 dark:text-finpay-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-finpay-purple-600 dark:text-finpay-purple-400">
+                      Instructions
+                    </h3>
+                    <p className="text-sm text-finpay-gray-600 dark:text-muted-foreground">
+                      {instructionsList.length} steps
+                    </p>
+                  </div>
+                </div>
+                {openSections.instructions ? (
+                  <ChevronUp className="h-5 w-5 text-finpay-purple-600 dark:text-finpay-purple-400" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-finpay-purple-600 dark:text-finpay-purple-400" />
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2">
+              <div className="finpay-card p-4 md:p-6 border-finpay-purple-200/30 dark:border-border">
+                {instructionsList.length > 0 ? (
+                  <ol className="list-decimal list-inside space-y-3 md:space-y-4 text-sm md:text-base text-finpay-gray-700 dark:text-foreground pl-1 md:pl-2">
+                    {instructionsList.map((step, index) => (
+                      <li key={index} className="bg-finpay-purple-50/50 dark:bg-muted/40 p-2 md:p-3 rounded-lg transition-all duration-300 ease-in-out hover:scale-105 hover:bg-finpay-purple-100/50 dark:hover:bg-muted/60 cursor-pointer border border-finpay-purple-200/30 dark:border-border">{step}</li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="text-sm md:text-base text-finpay-gray-600 dark:text-muted-foreground">No instructions provided.</p>
+                )}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Nutritional Info Section */}
+          {nutritionalInfoList.length > 0 && (
+            <Collapsible open={openSections.nutrition} onOpenChange={() => toggleSection('nutrition')}>
+              <CollapsibleTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between p-4 h-auto text-left finpay-card-hover border-finpay-teal-200/50 dark:border-border hover:bg-finpay-teal-50/50 dark:hover:bg-muted/60"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="bg-finpay-teal-100 dark:bg-finpay-teal-900/20 p-2 rounded-lg">
+                      <Info size={20} className="text-finpay-teal-600 dark:text-finpay-teal-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-finpay-teal-600 dark:text-finpay-teal-400">
+                        Nutritional Info
+                      </h3>
+                      <p className="text-sm text-finpay-gray-600 dark:text-muted-foreground">
+                        Health details
+                      </p>
+                    </div>
+                  </div>
+                  {openSections.nutrition ? (
+                    <ChevronUp className="h-5 w-5 text-finpay-teal-600 dark:text-finpay-teal-400" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-finpay-teal-600 dark:text-finpay-teal-400" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="finpay-card p-4 md:p-6 border-finpay-teal-200/30 dark:border-border">
+                  {nutritionalValues ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
+                      {nutritionalValues.calories && (
+                        <div className="bg-gradient-to-br from-finpay-orange-50 to-finpay-red-50 dark:from-finpay-orange-900/20 dark:to-finpay-red-900/20 p-3 md:p-4 rounded-lg border border-finpay-orange-200/50 dark:border-finpay-orange-800/50 text-center">
+                          <div className="text-base md:text-lg font-semibold text-finpay-orange-600 dark:text-finpay-orange-400 mb-1">
+                            {nutritionalValues.calories.replace(/calories?:?\s*/i, '').replace(/kcal/i, '').trim()}
+                          </div>
+                          <div className="text-xs md:text-sm text-finpay-orange-700 dark:text-finpay-orange-300">
+                            Calories
+                          </div>
+                        </div>
+                      )}
+                      
+                      {nutritionalValues.protein && (
+                        <div className="bg-gradient-to-br from-finpay-blue-50 to-finpay-indigo-50 dark:from-finpay-blue-900/20 dark:to-finpay-indigo-900/20 p-3 md:p-4 rounded-lg border border-finpay-blue-200/50 dark:border-finpay-blue-800/50 text-center">
+                          <div className="text-base md:text-lg font-semibold text-finpay-blue-600 dark:text-finpay-blue-400 mb-1">
+                            {nutritionalValues.protein.replace(/protein:?\s*/i, '').trim()}
+                          </div>
+                          <div className="text-xs md:text-sm text-finpay-blue-700 dark:text-finpay-blue-300">
+                            Protein
+                          </div>
+                        </div>
+                      )}
+                      
+                      {nutritionalValues.carbs && (
+                        <div className="bg-gradient-to-br from-finpay-green-50 to-finpay-emerald-50 dark:from-finpay-green-900/20 dark:to-finpay-emerald-900/20 p-3 md:p-4 rounded-lg border border-finpay-green-200/50 dark:border-finpay-green-800/50 text-center">
+                          <div className="text-base md:text-lg font-semibold text-finpay-green-600 dark:text-finpay-green-400 mb-1">
+                            {nutritionalValues.carbs.replace(/carb(ohydrate)?s?:?\s*/i, '').trim()}
+                          </div>
+                          <div className="text-xs md:text-sm text-finpay-green-700 dark:text-finpay-green-300">
+                            Carbs
+                          </div>
+                        </div>
+                      )}
+                      
+                      {nutritionalValues.fat && (
+                        <div className="bg-gradient-to-br from-finpay-purple-50 to-finpay-pink-50 dark:from-finpay-purple-900/20 dark:to-finpay-pink-900/20 p-3 md:p-4 rounded-lg border border-finpay-purple-200/50 dark:border-finpay-purple-800/50 text-center">
+                          <div className="text-base md:text-lg font-semibold text-finpay-purple-600 dark:text-finpay-purple-400 mb-1">
+                            {nutritionalValues.fat.replace(/fat:?\s*/i, '').trim()}
+                          </div>
+                          <div className="text-xs md:text-sm text-finpay-purple-700 dark:text-finpay-purple-300">
+                            Fat
+                          </div>
+                        </div>
+                      )}
+                      
+                      {nutritionalValues.fiber && (
+                        <div className="bg-gradient-to-br from-finpay-amber-50 to-finpay-yellow-50 dark:from-finpay-amber-900/20 dark:to-finpay-yellow-900/20 p-3 md:p-4 rounded-lg border border-finpay-amber-200/50 dark:border-finpay-amber-800/50 text-center">
+                          <div className="text-base md:text-lg font-semibold text-finpay-amber-600 dark:text-finpay-amber-400 mb-1">
+                            {nutritionalValues.fiber.replace(/fib(er|re):?\s*/i, '').trim()}
+                          </div>
+                          <div className="text-xs md:text-sm text-finpay-amber-700 dark:text-finpay-amber-300">
+                            Fiber
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center text-finpay-gray-600 dark:text-muted-foreground">
+                      No nutritional information available
+                    </div>
+                  )}
+                  
+                  {/* Additional nutrition info if any */}
+                  {nutritionalValues && nutritionalValues.other.length > 0 && (
+                    <div className="mt-4 space-y-2">
+                      <h4 className="text-sm font-medium text-finpay-gray-700 dark:text-foreground">Additional Information:</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {nutritionalValues.other.map((info, index) => (
+                          <div 
+                            key={index} 
+                            className="text-xs md:text-sm text-finpay-gray-600 dark:text-muted-foreground bg-finpay-gray-50 dark:bg-muted/40 px-3 py-1 rounded-full border border-finpay-gray-200 dark:border-border"
+                          >
+                            {info}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           )}
-        </div>
 
-        <div className="space-y-6 md:space-y-8 lg:order-1">
-          <div className="finpay-card p-4 md:p-6">
-            <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 flex items-center gap-2 md:gap-3 text-finpay-blue-600 dark:text-finpay-blue-400">
-              <div className="bg-finpay-blue-100 dark:bg-finpay-blue-900/20 p-1.5 md:p-2 rounded-lg">
-                <ShoppingBasket size={20} className="text-finpay-blue-600 dark:text-finpay-blue-400 md:w-6 md:h-6" />
-              </div>
-              Ingredients
-            </h3>
-            {ingredientsList.length > 0 ? (
-              <ol className="list-decimal list-inside space-y-2 md:space-y-3 text-sm md:text-base text-finpay-gray-700 dark:text-foreground pl-1 md:pl-2">
-                {ingredientsList.map((ingredient, index) => (
-                  <li key={index} className="bg-finpay-blue-50/50 dark:bg-muted/40 p-2 md:p-3 rounded-lg transition-all duration-300 ease-in-out hover:scale-105 hover:bg-finpay-blue-100/50 dark:hover:bg-muted/60 cursor-pointer border border-finpay-blue-200/30 dark:border-border">{ingredient}</li>
-                ))}
-              </ol>
-            ) : (
-              <p className="text-sm md:text-base text-finpay-gray-600 dark:text-muted-foreground">No ingredients listed.</p>
-            )}
-          </div>
-
-          <Separator className="bg-finpay-gray-200 dark:bg-border" />
-
-          <div className="finpay-card p-4 md:p-6">
-            <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 flex items-center gap-2 md:gap-3 text-finpay-purple-600 dark:text-finpay-purple-400">
-              <div className="bg-finpay-purple-100 dark:bg-finpay-purple-900/20 p-1.5 md:p-2 rounded-lg">
-                <ListChecks size={20} className="text-finpay-purple-600 dark:text-finpay-purple-400 md:w-6 md:h-6" />
-              </div>
-              Instructions
-            </h3>
-            {instructionsList.length > 0 ? (
-              <ol className="list-decimal list-inside space-y-3 md:space-y-4 text-sm md:text-base text-finpay-gray-700 dark:text-foreground pl-1 md:pl-2">
-                {instructionsList.map((step, index) => (
-                  <li key={index} className="bg-finpay-purple-50/50 dark:bg-muted/40 p-2 md:p-3 rounded-lg transition-all duration-300 ease-in-out hover:scale-105 hover:bg-finpay-purple-100/50 dark:hover:bg-muted/60 cursor-pointer border border-finpay-purple-200/30 dark:border-border">{step}</li>
-                ))}
-              </ol>
-            ) : (
-              <p className="text-sm md:text-base text-finpay-gray-600 dark:text-muted-foreground">No instructions provided.</p>
-            )}
-          </div>
+          {/* Shopping List Section */}
+          <Collapsible open={openSections.shopping} onOpenChange={() => toggleSection('shopping')}>
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between p-4 h-auto text-left finpay-card-hover border-finpay-green-200/50 dark:border-border hover:bg-finpay-green-50/50 dark:hover:bg-muted/60"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="bg-finpay-green-100 dark:bg-finpay-green-900/20 p-2 rounded-lg">
+                    <ShoppingBasket size={20} className="text-finpay-green-600 dark:text-finpay-green-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-finpay-green-600 dark:text-finpay-green-400">
+                      Shopping List
+                    </h3>
+                    <p className="text-sm text-finpay-gray-600 dark:text-muted-foreground">
+                      Organized by category
+                    </p>
+                  </div>
+                </div>
+                {openSections.shopping ? (
+                  <ChevronUp className="h-5 w-5 text-finpay-green-600 dark:text-finpay-green-400" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-finpay-green-600 dark:text-finpay-green-400" />
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2">
+              <ShoppingList 
+                ingredients={recipe.ingredients || ''} 
+                recipeName={recipe.recipeName || 'Recipe'} 
+              />
+            </CollapsibleContent>
+          </Collapsible>
         </div>
-        
-        {/* Shopping List */}
-        <div className="lg:col-span-2">
-          <ShoppingList 
-            ingredients={recipe.ingredients || ''} 
-            recipeName={recipe.recipeName || 'Recipe'} 
-          />
-        </div>
-        
       </CardContent>
 
       <CardFooter className="p-4 md:p-6 lg:p-8 bg-gradient-to-r from-finpay-teal-50/30 to-finpay-blue-50/30 dark:from-muted/30 dark:to-muted/20 border-t border-finpay-gray-200 dark:border-border flex flex-col sm:flex-row flex-wrap gap-3 md:gap-4 justify-start">

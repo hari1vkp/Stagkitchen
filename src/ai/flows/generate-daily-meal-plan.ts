@@ -16,6 +16,10 @@ const DailyMealPlanInputSchema = z.object({
     .string()
     .optional()
     .describe('Any dietary restrictions or preferences, e.g., vegetarian, gluten-free, low-carb.'),
+  fitnessGoal: z
+    .string()
+    .optional()
+    .describe('Fitness goal: bulking (muscle gain), cutting (fat loss), recomposition (build muscle & lose fat), or maintenance.'),
   mealCount: z
     .number()
     .min(3)
@@ -68,8 +72,13 @@ const generateDailyMealPlanPrompt = ai.definePrompt({
 
 Available ingredients: {{{ingredients}}}
 Target daily calories: {{{targetCalories}}} calories
-Dietary preferences: {{{dietaryPreferences}}}
 Number of meals: {{{mealCount}}}
+{{#if dietaryPreferences}}
+Dietary preferences: {{{dietaryPreferences}}}
+{{/if}}
+{{#if fitnessGoal}}
+Fitness goal: {{{fitnessGoal}}}
+{{/if}}
 
 {{#if images}}
 You have been provided with images of ingredients. Consider these when planning meals.
@@ -78,11 +87,19 @@ You have been provided with images of ingredients. Consider these when planning 
 
 Create a balanced daily meal plan that:
 1. Uses the provided ingredients as much as possible
-2. Meets the target calorie goal
-3. Provides balanced nutrition (protein, carbs, fat, fiber)
-4. Includes {{mealCount}} meals throughout the day
+2. Meets the target calorie goal ({{targetCalories}} calories)
+3. Includes {{mealCount}} meals throughout the day
+4. Provides balanced nutrition (protein, carbs, fat, fiber)
 5. Respects any dietary preferences
 6. Is practical and easy to prepare
+
+{{#if fitnessGoal}}
+Special considerations for fitness goal "{{fitnessGoal}}":
+- If bulking: Higher protein and calorie-dense foods for muscle building
+- If cutting: High protein, lower calories, filling foods for fat loss
+- If recomposition: Balanced macros with strategic nutrient timing
+- If maintenance: Sustainable balanced nutrition
+{{/if}}
 
 For each meal, provide:
 - Creative name
