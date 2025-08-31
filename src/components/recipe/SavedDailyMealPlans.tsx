@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import DailyMealPlanDisplay from './DailyMealPlanDisplay';
 import type { DailyMealPlanOutput } from '@/ai/flows/generate-daily-meal-plan';
 
@@ -366,8 +366,17 @@ export default function SavedDailyMealPlans() {
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
+                    <DialogHeader className="flex flex-row items-center justify-between">
                       <DialogTitle>{mealPlan.title}</DialogTitle>
+                      <DialogClose asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/20"
+                        >
+                          Close
+                        </Button>
+                      </DialogClose>
                     </DialogHeader>
                     {selectedMealPlan && (
                       <DailyMealPlanDisplay mealPlan={selectedMealPlan} />

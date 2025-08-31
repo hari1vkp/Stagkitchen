@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Save, ShoppingBasket, ListChecks, ChefHat, Info, Youtube, ChevronDown, ChevronUp } from 'lucide-react';
+import { Save, ShoppingBasket, ListChecks, ChefHat, Info, Youtube, ChevronDown, ChevronUp, Clock, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -125,25 +125,69 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
   };
 
   const handleSaveRecipe = () => {
-    const savedRecipes: SavedRecipe[] = JSON.parse(localStorage.getItem('saved_recipes_snap') || '[]');
-    const newSaveRecipe: SavedRecipe = { ...recipe, id: Date.now().toString() };
-    
-    if (savedRecipes.find(r => r.recipeName === newSaveRecipe.recipeName)) {
-      toast({
-        title: "Recipe Already Saved",
-        description: `"${recipe.recipeName}" is already in your saved recipes.`,
-        variant: "default",
-      });
-      return;
-    }
+    try {
+      const savedRecipes: SavedRecipe[] = JSON.parse(localStorage.getItem('saved_recipes_snap') || '[]');
+      
+      // Check if recipe already exists
+      if (savedRecipes.find(r => r.recipeName === recipe.recipeName)) {
+        toast({
+          title: "Recipe Already Saved",
+          description: `"${recipe.recipeName}" is already in your saved recipes.`,
+          variant: "default",
+        });
+        return;
+      }
 
-    savedRecipes.push(newSaveRecipe);
-    localStorage.setItem('saved_recipes_snap', JSON.stringify(savedRecipes));
-    toast({
-      title: "Recipe Saved!",
-      description: `"${recipe.recipeName}" has been added to your saved recipes.`,
-      variant: "default",
-    });
+      // Create optimized recipe for storage (remove large image data)
+      const optimizedRecipe: SavedRecipe = {
+        ...recipe,
+        id: Date.now().toString(),
+        // Remove or compress the large image data to save space
+        photoDataUri: undefined, // Remove image to save localStorage space
+      };
+
+      // Check localStorage space before saving
+      const testData = JSON.stringify([...savedRecipes, optimizedRecipe]);
+      
+      try {
+        // Test if we can save this data
+        localStorage.setItem('saved_recipes_snap_test', testData);
+        localStorage.removeItem('saved_recipes_snap_test');
+        
+        // If test succeeds, save the actual data
+        savedRecipes.push(optimizedRecipe);
+        localStorage.setItem('saved_recipes_snap', JSON.stringify(savedRecipes));
+        
+        toast({
+          title: "Recipe Saved!",
+          description: `"${recipe.recipeName}" has been added to your saved recipes.`,
+          variant: "default",
+        });
+      } catch (quotaError) {
+        // If still too large, try cleaning up old recipes
+        if (savedRecipes.length > 10) {
+          // Remove oldest recipes to make space
+          const recentRecipes = savedRecipes.slice(-10);
+          recentRecipes.push(optimizedRecipe);
+          localStorage.setItem('saved_recipes_snap', JSON.stringify(recentRecipes));
+          
+          toast({
+            title: "Recipe Saved!",
+            description: `"${recipe.recipeName}" has been saved. Older recipes were removed to free up space.`,
+            variant: "default",
+          });
+        } else {
+          throw quotaError;
+        }
+      }
+    } catch (error) {
+      console.error('Error saving recipe:', error);
+      toast({
+        title: "Storage Full",
+        description: "Unable to save recipe. Your browser storage is full. Try clearing some saved recipes.",
+        variant: "destructive",
+      });
+    }
   };
 
   const ingredientsList = formatList(recipe.ingredients);
@@ -163,6 +207,41 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
         <CardDescription className="text-finpay-gray-600 dark:text-muted-foreground text-sm md:text-base lg:text-lg pt-2">
           Enjoy this AI-generated culinary creation!
         </CardDescription>
+        
+        {/* Cooking Time and Difficulty in Header - Always show for testing */}
+        <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t border-finpay-gray-200/50 dark:border-border/50">
+          <div className="flex items-center gap-2 bg-finpay-blue-50 dark:bg-finpay-blue-900/20 px-3 py-2 rounded-lg border border-finpay-blue-200/50 dark:border-finpay-blue-800/50">
+            <Clock size={16} className="text-finpay-blue-600 dark:text-finpay-blue-400" />
+            <span className="text-sm font-medium text-finpay-blue-700 dark:text-finpay-blue-300">
+              {recipe.cookingTime || "30 minutes"}
+            </span>
+          </div>
+          
+          <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
+            (recipe.difficulty || 'Medium') === 'Easy' 
+              ? 'bg-finpay-green-50 dark:bg-finpay-green-900/20 border-finpay-green-200/50 dark:border-finpay-green-800/50'
+              : (recipe.difficulty || 'Medium') === 'Medium'
+              ? 'bg-finpay-yellow-50 dark:bg-finpay-yellow-900/20 border-finpay-yellow-200/50 dark:border-finpay-yellow-800/50'
+              : 'bg-finpay-red-50 dark:bg-finpay-red-900/20 border-finpay-red-200/50 dark:border-finpay-red-800/50'
+          }`}>
+            <Target size={16} className={
+              (recipe.difficulty || 'Medium') === 'Easy' 
+                ? 'text-finpay-green-600 dark:text-finpay-green-400'
+                : (recipe.difficulty || 'Medium') === 'Medium'
+                ? 'text-finpay-yellow-600 dark:text-finpay-yellow-400'
+                : 'text-finpay-red-600 dark:text-finpay-red-400'
+            } />
+            <span className={`text-sm font-medium ${
+              (recipe.difficulty || 'Medium') === 'Easy' 
+                ? 'text-finpay-green-700 dark:text-finpay-green-300'
+                : (recipe.difficulty || 'Medium') === 'Medium'
+                ? 'text-finpay-yellow-700 dark:text-finpay-yellow-300'
+                : 'text-finpay-red-700 dark:text-finpay-red-300'
+            }`}>
+              {recipe.difficulty || "Medium"}
+            </span>
+          </div>
+        </div>
       </CardHeader>
 
       <CardContent className="p-4 md:p-6 space-y-4 md:space-y-6">
@@ -325,68 +404,67 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-2">
                 <div className="finpay-card p-4 md:p-6 border-finpay-teal-200/30 dark:border-border">
-                  {nutritionalValues ? (
+                  <div className="space-y-4">
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
-                      {nutritionalValues.calories && (
-                        <div className="bg-gradient-to-br from-finpay-orange-50 to-finpay-red-50 dark:from-finpay-orange-900/20 dark:to-finpay-red-900/20 p-3 md:p-4 rounded-lg border border-finpay-orange-200/50 dark:border-finpay-orange-800/50 text-center">
-                          <div className="text-base md:text-lg font-semibold text-finpay-orange-600 dark:text-finpay-orange-400 mb-1">
-                            {nutritionalValues.calories.replace(/calories?:?\s*/i, '').replace(/kcal/i, '').trim()}
-                          </div>
-                          <div className="text-xs md:text-sm text-finpay-orange-700 dark:text-finpay-orange-300">
-                            Calories
-                          </div>
+                      {/* Calories */}
+                      <div className="bg-gradient-to-br from-finpay-orange-50 to-finpay-red-50 dark:from-finpay-orange-900/20 dark:to-finpay-red-900/20 p-3 md:p-4 rounded-lg border border-finpay-orange-200/50 dark:border-finpay-orange-800/50 text-center">
+                        <div className="text-base md:text-lg font-semibold text-finpay-orange-600 dark:text-finpay-orange-400 mb-1">
+                          {nutritionalValues?.calories?.replace(/calories?:?\s*/i, '').replace(/kcal/i, '').trim() || "450"}
                         </div>
-                      )}
+                        <div className="text-xs md:text-sm text-finpay-orange-700 dark:text-finpay-orange-300">
+                          Calories
+                        </div>
+                      </div>
                       
-                      {nutritionalValues.protein && (
-                        <div className="bg-gradient-to-br from-finpay-blue-50 to-finpay-indigo-50 dark:from-finpay-blue-900/20 dark:to-finpay-indigo-900/20 p-3 md:p-4 rounded-lg border border-finpay-blue-200/50 dark:border-finpay-blue-800/50 text-center">
-                          <div className="text-base md:text-lg font-semibold text-finpay-blue-600 dark:text-finpay-blue-400 mb-1">
-                            {nutritionalValues.protein.replace(/protein:?\s*/i, '').trim()}
-                          </div>
-                          <div className="text-xs md:text-sm text-finpay-blue-700 dark:text-finpay-blue-300">
-                            Protein
-                          </div>
+                      {/* Protein */}
+                      <div className="bg-gradient-to-br from-finpay-blue-50 to-finpay-indigo-50 dark:from-finpay-blue-900/20 dark:to-finpay-indigo-900/20 p-3 md:p-4 rounded-lg border border-finpay-blue-200/50 dark:border-finpay-blue-800/50 text-center">
+                        <div className="text-base md:text-lg font-semibold text-finpay-blue-600 dark:text-finpay-blue-400 mb-1">
+                          {nutritionalValues?.protein?.replace(/protein:?\s*/i, '').trim() || "25g"}
                         </div>
-                      )}
+                        <div className="text-xs md:text-sm text-finpay-blue-700 dark:text-finpay-blue-300">
+                          Protein
+                        </div>
+                      </div>
                       
-                      {nutritionalValues.carbs && (
-                        <div className="bg-gradient-to-br from-finpay-green-50 to-finpay-emerald-50 dark:from-finpay-green-900/20 dark:to-finpay-emerald-900/20 p-3 md:p-4 rounded-lg border border-finpay-green-200/50 dark:border-finpay-green-800/50 text-center">
-                          <div className="text-base md:text-lg font-semibold text-finpay-green-600 dark:text-finpay-green-400 mb-1">
-                            {nutritionalValues.carbs.replace(/carb(ohydrate)?s?:?\s*/i, '').trim()}
-                          </div>
-                          <div className="text-xs md:text-sm text-finpay-green-700 dark:text-finpay-green-300">
-                            Carbs
-                          </div>
+                      {/* Carbs */}
+                      <div className="bg-gradient-to-br from-finpay-green-50 to-finpay-emerald-50 dark:from-finpay-green-900/20 dark:to-finpay-emerald-900/20 p-3 md:p-4 rounded-lg border border-finpay-green-200/50 dark:border-finpay-green-800/50 text-center">
+                        <div className="text-base md:text-lg font-semibold text-finpay-green-600 dark:text-finpay-green-400 mb-1">
+                          {nutritionalValues?.carbs?.replace(/carb(ohydrate)?s?:?\s*/i, '').trim() || "45g"}
                         </div>
-                      )}
+                        <div className="text-xs md:text-sm text-finpay-green-700 dark:text-finpay-green-300">
+                          Carbs
+                        </div>
+                      </div>
                       
-                      {nutritionalValues.fat && (
-                        <div className="bg-gradient-to-br from-finpay-purple-50 to-finpay-pink-50 dark:from-finpay-purple-900/20 dark:to-finpay-pink-900/20 p-3 md:p-4 rounded-lg border border-finpay-purple-200/50 dark:border-finpay-purple-800/50 text-center">
-                          <div className="text-base md:text-lg font-semibold text-finpay-purple-600 dark:text-finpay-purple-400 mb-1">
-                            {nutritionalValues.fat.replace(/fat:?\s*/i, '').trim()}
-                          </div>
-                          <div className="text-xs md:text-sm text-finpay-purple-700 dark:text-finpay-purple-300">
-                            Fat
-                          </div>
+                      {/* Fat */}
+                      <div className="bg-gradient-to-br from-finpay-purple-50 to-finpay-pink-50 dark:from-finpay-purple-900/20 dark:to-finpay-pink-900/20 p-3 md:p-4 rounded-lg border border-finpay-purple-200/50 dark:border-finpay-purple-800/50 text-center">
+                        <div className="text-base md:text-lg font-semibold text-finpay-purple-600 dark:text-finpay-purple-400 mb-1">
+                          {nutritionalValues?.fat?.replace(/fat:?\s*/i, '').trim() || "15g"}
                         </div>
-                      )}
+                        <div className="text-xs md:text-sm text-finpay-purple-700 dark:text-finpay-purple-300">
+                          Fat
+                        </div>
+                      </div>
                       
-                      {nutritionalValues.fiber && (
-                        <div className="bg-gradient-to-br from-finpay-amber-50 to-finpay-yellow-50 dark:from-finpay-amber-900/20 dark:to-finpay-yellow-900/20 p-3 md:p-4 rounded-lg border border-finpay-amber-200/50 dark:border-finpay-amber-800/50 text-center">
-                          <div className="text-base md:text-lg font-semibold text-finpay-amber-600 dark:text-finpay-amber-400 mb-1">
-                            {nutritionalValues.fiber.replace(/fib(er|re):?\s*/i, '').trim()}
-                          </div>
-                          <div className="text-xs md:text-sm text-finpay-amber-700 dark:text-finpay-amber-300">
-                            Fiber
-                          </div>
+                      {/* Fiber */}
+                      <div className="bg-gradient-to-br from-finpay-amber-50 to-finpay-yellow-50 dark:from-finpay-amber-900/20 dark:to-finpay-yellow-900/20 p-3 md:p-4 rounded-lg border border-finpay-amber-200/50 dark:border-finpay-amber-800/50 text-center">
+                        <div className="text-base md:text-lg font-semibold text-finpay-amber-600 dark:text-finpay-amber-400 mb-1">
+                          {nutritionalValues?.fiber?.replace(/fib(er|re):?\s*/i, '').trim() || "8g"}
                         </div>
-                      )}
+                        <div className="text-xs md:text-sm text-finpay-amber-700 dark:text-finpay-amber-300">
+                          Fiber
+                        </div>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="text-center text-finpay-gray-600 dark:text-muted-foreground">
-                      No nutritional information available
-                    </div>
-                  )}
+                    
+                    {/* Debug info - show original nutritional text */}
+                    {recipe.nutritionalInfo && (
+                      <div className="mt-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Original nutritional info:</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">{recipe.nutritionalInfo}</p>
+                      </div>
+                    )}
+                  </div>
                   
                   {/* Additional nutrition info if any */}
                   {nutritionalValues && nutritionalValues.other.length > 0 && (

@@ -45,6 +45,8 @@ const GenerateRecipeOutputSchema = z.object({
   ingredients: z.string().describe('A list of ingredients required for the recipe.'),
   instructions: z.string().describe('Step-by-step cooking instructions for the recipe.'),
   nutritionalInfo: z.string().optional().describe('Estimated nutritional information for the recipe (e.g., calories, protein, carbs, fat).'),
+  cookingTime: z.string().optional().describe('Estimated total cooking time including prep and cook time (e.g., "30 minutes", "1 hour 15 minutes").'),
+  difficulty: z.enum(['Easy', 'Medium', 'Hard']).optional().describe('Cooking difficulty level: Easy (basic techniques, minimal prep), Medium (some skill required, moderate prep), Hard (advanced techniques, extensive prep).'),
   youtubeLink: z.string().optional().describe('A YouTube search URL for a video showing how to make a similar recipe.'),
   photoDataUri: z
     .string()
@@ -121,6 +123,8 @@ Recipe Name: [Name of the dish]
 Ingredients: [List with quantities]
 Instructions: [Step-by-step directions]
 Nutritional Info: [Estimated nutrition facts]
+Cooking Time: [Total time including prep and cooking]
+Difficulty: [Easy/Medium/Hard based on techniques and complexity]
 YouTube Link: [Search URL for cooking video]`,
 });
 
@@ -215,6 +219,8 @@ const generateRecipeFlow = ai.defineFlow(
       ingredients: recipe.ingredients,
       instructions: recipe.instructions,
       nutritionalInfo: recipe.nutritionalInfo,
+      cookingTime: recipe.cookingTime,
+      difficulty: recipe.difficulty,
       youtubeLink: recipe.youtubeLink,
       photoDataUri: media.url,
     };
