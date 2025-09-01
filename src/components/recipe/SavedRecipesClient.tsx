@@ -694,16 +694,18 @@ export default function SavedRecipesClient({ refreshTrigger }: SavedRecipesClien
                   </div>
 
                   {/* YouTube Link */}
-                  {selectedRecipe.youtubeLink && (
-                    <div className="text-center">
-                      <Button asChild variant="outline" size="sm" className="finpay-button-secondary w-full sm:w-auto text-xs md:text-sm">
-                        <a href={selectedRecipe.youtubeLink} target="_blank" rel="noopener noreferrer">
-                          <Youtube className="mr-1 md:mr-2 h-4 w-4 md:h-5 md:w-5" />
-                          Watch on YouTube
-                        </a>
-                      </Button>
-                    </div>
-                  )}
+                  <div className="text-center">
+                    <Button asChild variant="outline" size="sm" className="finpay-button-secondary w-full sm:w-auto text-xs md:text-sm">
+                      <a 
+                        href={selectedRecipe.youtubeLink || `https://www.youtube.com/results?search_query=how+to+make+${encodeURIComponent(selectedRecipe.recipeName || 'recipe')}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
+                        <Youtube className="mr-1 md:mr-2 h-4 w-4 md:h-5 md:w-5" />
+                        Watch on YouTube
+                      </a>
+                    </Button>
+                  </div>
                 </div>
               </ScrollArea>
             </div>

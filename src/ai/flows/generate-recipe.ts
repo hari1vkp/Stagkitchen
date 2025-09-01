@@ -47,7 +47,7 @@ const GenerateRecipeOutputSchema = z.object({
   nutritionalInfo: z.string().optional().describe('Estimated nutritional information for the recipe (e.g., calories, protein, carbs, fat).'),
   cookingTime: z.string().optional().describe('Estimated total cooking time including prep and cook time (e.g., "30 minutes", "1 hour 15 minutes").'),
   difficulty: z.enum(['Easy', 'Medium', 'Hard']).optional().describe('Cooking difficulty level: Easy (basic techniques, minimal prep), Medium (some skill required, moderate prep), Hard (advanced techniques, extensive prep).'),
-  youtubeLink: z.string().optional().describe('A YouTube search URL for a video showing how to make a similar recipe.'),
+  youtubeLink: z.string().describe('A YouTube search URL for finding cooking videos, formatted as: https://www.youtube.com/results?search_query=how+to+make+[recipe+name+with+plus+signs]'),
   photoDataUri: z
     .string()
     .optional()
@@ -125,7 +125,7 @@ Instructions: [Step-by-step directions]
 Nutritional Info: [Estimated nutrition facts]
 Cooking Time: [Total time including prep and cooking]
 Difficulty: [Easy/Medium/Hard based on techniques and complexity]
-YouTube Link: [Search URL for cooking video]`,
+YouTube Link: [Always provide a YouTube search URL like "https://www.youtube.com/results?search_query=how+to+make+[recipe+name]" for finding cooking videos]`,
 });
 
 

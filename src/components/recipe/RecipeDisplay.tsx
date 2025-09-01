@@ -529,14 +529,16 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
           <Save className="mr-1 md:mr-2 h-4 w-4 md:h-5 md:w-5" />
           Save Recipe
         </Button>
-         {recipe.youtubeLink && (
-            <Button asChild variant="outline" size="sm" className="finpay-button-secondary w-full sm:w-auto text-xs md:text-sm">
-              <a href={recipe.youtubeLink} target="_blank" rel="noopener noreferrer">
-                <Youtube className="mr-1 md:mr-2 h-4 w-4 md:h-5 md:w-5" />
-                Watch on YouTube
-              </a>
-            </Button>
-          )}
+        <Button asChild variant="outline" size="sm" className="finpay-button-secondary w-full sm:w-auto text-xs md:text-sm">
+          <a 
+            href={recipe.youtubeLink || `https://www.youtube.com/results?search_query=how+to+make+${encodeURIComponent(recipe.recipeName || 'recipe')}`} 
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
+            <Youtube className="mr-1 md:mr-2 h-4 w-4 md:h-5 md:w-5" />
+            Watch on YouTube
+          </a>
+        </Button>
       </CardFooter>
     </Card>
   );
