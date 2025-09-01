@@ -354,7 +354,7 @@ export default function SavedDailyMealPlans() {
 
               {/* Action Buttons */}
               <div className="flex gap-2 pt-2">
-                <Dialog>
+                <Dialog modal={false}>
                   <DialogTrigger asChild>
                     <Button 
                       size="sm" 

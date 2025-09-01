@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { ChefHat, BookOpen, Calendar } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import ScrollTextAnimation from "@/components/ui/scroll-text-animation";
 import RecipeForm from "@/components/forms/RecipeForm";
 import RecipeDisplay from "@/components/recipe/RecipeDisplay";
 import DailyMealPlanForm from "@/components/forms/DailyMealPlanForm";
@@ -23,8 +24,7 @@ export default function Home() {
   const [mealPlan, setMealPlan] = useState<DailyMealPlanOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [refreshSavedRecipes, setRefreshSavedRecipes] = useState(0);
-  const { toast } = useToast();
+
 
   const handleRecipeSubmit = async (data: any) => {
     console.log('Submitting recipe data:', {
@@ -94,9 +94,11 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-finpay-gray-50 via-white to-finpay-purple-50/50 dark:from-background dark:via-background dark:to-muted/20">
       {/* Welcome Section */}
       <div className="text-center py-8 md:py-12 px-4">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 finpay-gradient-text" style={{ lineHeight: '1.1', paddingBottom: '0.05em' }}>
-          Welcome to StagKitchen
-        </h1>
+        <ScrollTextAnimation animation="fadeInUp" duration={1.2}>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 finpay-gradient-text" style={{ lineHeight: '1.1', paddingBottom: '0.05em' }}>
+            Welcome to StagKitchen
+          </h1>
+        </ScrollTextAnimation>
         <p className="text-lg sm:text-xl text-finpay-gray-600 dark:text-muted-foreground max-w-3xl mx-auto px-2">
           Your AI-powered kitchen companion for creating delicious recipes and planning nutritious meals
         </p>
@@ -294,7 +296,7 @@ export default function Home() {
 
           {/* Saved Recipes Tab */}
           <TabsContent value="saved" className="space-y-6 md:space-y-8">
-            <SavedRecipesClient refreshTrigger={refreshSavedRecipes} />
+            <SavedRecipesClient />
           </TabsContent>
 
           {/* Saved Meal Plans Tab */}

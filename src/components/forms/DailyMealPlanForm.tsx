@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Calendar, Target, Utensils, XIcon, Calculator, Info } from "lucide-react";
+import { usePreventScrollLock } from "@/hooks/use-prevent-scroll-lock";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,20 @@ interface DailyMealPlanFormProps {
   isLoading: boolean;
 }
 
+// BMI calculation
+const calculateBMI = (weight: number, height: number) => {
+  const heightInMeters = height / 100;
+  return weight / (heightInMeters * heightInMeters);
+};
+
+// BMI category classification
+const getBMICategory = (bmi: number) => {
+  if (bmi < 18.5) return { category: 'Underweight', color: 'text-blue-600 dark:text-blue-400', bgColor: 'bg-blue-50 dark:bg-blue-900/20', borderColor: 'border-blue-200 dark:border-blue-800' };
+  if (bmi < 25) return { category: 'Normal weight', color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-50 dark:bg-green-900/20', borderColor: 'border-green-200 dark:border-green-800' };
+  if (bmi < 30) return { category: 'Overweight', color: 'text-yellow-600 dark:text-yellow-400', bgColor: 'bg-yellow-50 dark:bg-yellow-900/20', borderColor: 'border-yellow-200 dark:border-yellow-800' };
+  return { category: 'Obese', color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-50 dark:bg-red-900/20', borderColor: 'border-red-200 dark:border-red-800' };
+};
+
 // Calorie calculation using Mifflin-St Jeor Equation
 const calculateMaintenanceCalories = (weight: number, height: number, age: number, sex: string, activityLevel: string) => {
   // BMR calculation (Mifflin-St Jeor Equation)
@@ -64,9 +79,13 @@ const calculateMaintenanceCalories = (weight: number, height: number, age: numbe
 };
 
 export default function DailyMealPlanForm({ onSubmit, isLoading }: DailyMealPlanFormProps) {
+  // Prevent scroll locking when dropdowns open
+  usePreventScrollLock();
+  
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [showCalorieCalculator, setShowCalorieCalculator] = useState(false);
   const [calculatedCalories, setCalculatedCalories] = useState<number | null>(null);
+  const [calculatedBMI, setCalculatedBMI] = useState<number | null>(null);
   
   const form = useForm<DailyMealPlanFormValues>({
     resolver: zodResolver(formSchema),
@@ -96,7 +115,9 @@ export default function DailyMealPlanForm({ onSubmit, isLoading }: DailyMealPlan
     
     if (weight && height && age) {
       const calories = calculateMaintenanceCalories(weight, height, age, calculatorForm.sex, calculatorForm.activityLevel);
+      const bmi = calculateBMI(weight, height);
       setCalculatedCalories(calories);
+      setCalculatedBMI(bmi);
       form.setValue('targetCalories', calories);
     }
   };
@@ -258,7 +279,7 @@ export default function DailyMealPlanForm({ onSubmit, isLoading }: DailyMealPlan
                                 onChange={(e) => setCalculatorForm({...calculatorForm, age: e.target.value})}
                                 className="finpay-input text-sm"
                               />
-                              <Select value={calculatorForm.sex} onValueChange={(value) => setCalculatorForm({...calculatorForm, sex: value})}>
+                              <Select value={calculatorForm.sex} onValueChange={(value) => setCalculatorForm({...calculatorForm, sex: value})} modal={false}>
                                 <SelectTrigger className="finpay-input text-sm h-10">
                                   <SelectValue />
                                 </SelectTrigger>
@@ -269,7 +290,7 @@ export default function DailyMealPlanForm({ onSubmit, isLoading }: DailyMealPlan
                               </Select>
                             </div>
                             
-                            <Select value={calculatorForm.activityLevel} onValueChange={(value) => setCalculatorForm({...calculatorForm, activityLevel: value})}>
+                            <Select value={calculatorForm.activityLevel} onValueChange={(value) => setCalculatorForm({...calculatorForm, activityLevel: value})} modal={false}>
                               <SelectTrigger className="finpay-input text-sm h-10">
                                 <SelectValue />
                               </SelectTrigger>
@@ -316,17 +337,42 @@ export default function DailyMealPlanForm({ onSubmit, isLoading }: DailyMealPlan
                               Calculate Calories
                             </Button>
                             
-                            {calculatedCalories && (
-                              <div className="text-center p-3 bg-finpay-teal-50 dark:bg-finpay-teal-900/20 rounded-lg border border-finpay-teal-200/30 dark:border-finpay-teal-800/30">
-                                <p className="text-sm text-finpay-gray-600 dark:text-muted-foreground">
-                                  Your maintenance calories:
-                                </p>
-                                <p className="text-xl font-bold text-finpay-teal-600 dark:text-finpay-teal-400">
-                                  {calculatedCalories} calories/day
-                                </p>
-                                <p className="text-xs text-finpay-gray-500 dark:text-muted-foreground mt-1">
-                                  This has been set as your target calories
-                                </p>
+                            {calculatedCalories && calculatedBMI && (
+                              <div className="space-y-3">
+                                {/* Calorie Results */}
+                                <div className="text-center p-3 bg-finpay-teal-50 dark:bg-finpay-teal-900/20 rounded-lg border border-finpay-teal-200/30 dark:border-finpay-teal-800/30">
+                                  <p className="text-sm text-finpay-gray-600 dark:text-muted-foreground">
+                                    Your maintenance calories:
+                                  </p>
+                                  <p className="text-xl font-bold text-finpay-teal-600 dark:text-finpay-teal-400">
+                                    {calculatedCalories} calories/day
+                                  </p>
+                                  <p className="text-xs text-finpay-gray-500 dark:text-muted-foreground mt-1">
+                                    This has been set as your target calories
+                                  </p>
+                                </div>
+                                
+                                {/* BMI Results */}
+                                {(() => {
+                                  const bmiCategory = getBMICategory(calculatedBMI);
+                                  return (
+                                    <div className={`text-center p-3 ${bmiCategory.bgColor} rounded-lg border ${bmiCategory.borderColor}`}>
+                                      <p className="text-sm text-finpay-gray-600 dark:text-muted-foreground">
+                                        Your Body Mass Index (BMI):
+                                      </p>
+                                      <p className={`text-xl font-bold ${bmiCategory.color}`}>
+                                        {calculatedBMI.toFixed(1)}
+                                      </p>
+                                      <p className={`text-sm font-medium ${bmiCategory.color}`}>
+                                        {bmiCategory.category}
+                                      </p>
+                                      <div className="mt-2 text-xs text-finpay-gray-500 dark:text-muted-foreground">
+                                        <p>BMI Categories:</p>
+                                        <p>Underweight: &lt;18.5 | Normal: 18.5-24.9 | Overweight: 25-29.9 | Obese: ≥30</p>
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
                               </div>
                             )}
                           </div>
@@ -347,7 +393,7 @@ export default function DailyMealPlanForm({ onSubmit, isLoading }: DailyMealPlan
                       Meals Per Day
                     </FormLabel>
                     <FormControl>
-                      <Select onValueChange={(value) => field.onChange(Number(value))} defaultValue={field.value.toString()}>
+                      <Select onValueChange={(value) => field.onChange(Number(value))} defaultValue={field.value.toString()} modal={false}>
                         <SelectTrigger className="finpay-input h-12 text-sm md:text-base">
                           <SelectValue placeholder="Select meal count" />
                         </SelectTrigger>
@@ -447,7 +493,7 @@ export default function DailyMealPlanForm({ onSubmit, isLoading }: DailyMealPlan
                       Fitness Goal (Optional)
                     </FormLabel>
                     <FormControl>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value} modal={false}>
                         <SelectTrigger className="finpay-input h-12 text-sm md:text-base">
                           <SelectValue placeholder="Select your fitness goal" />
                         </SelectTrigger>

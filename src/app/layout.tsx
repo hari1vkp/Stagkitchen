@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import Header from '@/components/layout/Header';
+import FloatingFoodIcons from '@/components/ui/floating-food-icons';
 import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -74,9 +75,10 @@ export default function RootLayout({
           `
         }} />
       </head>
-      <body className={`${inter.className} antialiased flex flex-col min-h-screen bg-background finpay-bg-shapes`}>
+      <body className={`${inter.className} antialiased flex flex-col min-h-screen bg-background finpay-bg-shapes relative`}>
+        <FloatingFoodIcons />
         <Header />
-        <main className="flex-grow container mx-auto px-4 py-8">
+        <main className="flex-grow container mx-auto px-4 py-8 relative z-10">
           {children}
         </main>
         <Toaster />

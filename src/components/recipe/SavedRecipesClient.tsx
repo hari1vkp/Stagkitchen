@@ -414,7 +414,7 @@ export default function SavedRecipesClient({ refreshTrigger }: SavedRecipesClien
       </div>
 
       {selectedRecipe && (
-        <Dialog open={!!selectedRecipe} onOpenChange={(open) => !open && setSelectedRecipe(null)}>
+        <Dialog open={!!selectedRecipe} onOpenChange={(open) => !open && setSelectedRecipe(null)} modal={false}>
           <DialogContent className="max-w-6xl w-[95vw] h-[90vh] flex flex-col p-0">
             {/* Fixed Header */}
             <div className="flex-shrink-0 p-4 md:p-6 lg:p-8 border-b border-finpay-gray-200 dark:border-border bg-gradient-to-r from-finpay-teal-50/30 to-finpay-blue-50/30 dark:from-muted/30 dark:to-muted/20">
